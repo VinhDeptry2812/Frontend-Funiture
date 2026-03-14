@@ -41,5 +41,38 @@ export const authService = {
   updateProfile: async (data: any) => {
     const response = await api.put('/update-profile', data);
     return response.data;
+  },
+
+  // --- Quản lý địa chỉ ---
+  getAddresses: async () => {
+    const response = await api.get('/user/addresses');
+    return response.data;
+  },
+
+  addAddress: async (data: any) => {
+    const response = await api.post('/user/addresses', data);
+    return response.data;
+  },
+
+  updateAddress: async (id: number, data: any) => {
+    const response = await api.put(`/user/addresses/${id}`, data);
+    return response.data;
+  },
+
+  deleteAddress: async (id: number) => {
+    const response = await api.delete(`/user/addresses/${id}`);
+    return response.data;
+  },
+
+  setDefaultAddress: async (id: number) => {
+    const response = await api.patch(`/user/addresses/${id}/set-default`);
+    return response.data;
+  },
+
+  // Phương thức Social Login
+  getSocialLoginUrl: (provider: 'google' | 'facebook') => {
+    // @ts-ignore
+    const baseUrl = import.meta.env?.VITE_API_URL || 'http://127.0.0.1:8000/api';
+    return `${baseUrl}/auth/${provider}`;
   }
 };

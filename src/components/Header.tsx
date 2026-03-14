@@ -11,7 +11,10 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(() => {
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -21,7 +24,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
         setLoading(true);
         try {
           const res = await authService.getProfile();
-          setUser(res);
+          setUser(res.user);
         } catch (error) {
           console.error("Lỗi lấy thông tin người dùng:", error);
           localStorage.removeItem('token');
