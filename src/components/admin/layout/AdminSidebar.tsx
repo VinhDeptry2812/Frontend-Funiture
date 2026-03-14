@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { data, NavLink, useLocation } from 'react-router-dom';
+import { data, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { authService } from '../../../Service/authService';
 import { 
   LayoutDashboard, 
@@ -9,11 +9,36 @@ import {
   BarChart2, 
   Settings,
   Armchair,
-  List
+  List,
+  LogOut,
+  AlertTriangle,
+  X
 } from 'lucide-react';
 
 export const AdminSidebar: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
+  };
+
+  const confirmLogout = async () => {
+    try {
+      await authService.logoutAdmin();
+    } catch (error) {
+      console.error('Lỗi đăng xuất API:', error);
+    } finally {
+      // Luôn xóa token và chuyển trang dù gọi API có lỗi hay không
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_info');
+      setIsLogoutModalOpen(false);
+      navigate('/admin/login');
+    }
+  };
+
 
   const menuItems = [
     { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -95,12 +120,58 @@ export const AdminSidebar: React.FC = () => {
           <p className="text-sm font-bold text-white truncate">{adminProfile.admin.name?adminProfile.admin.name:'Unknown'}</p>
           <p className="text-[11px] text-neutral-500 truncate">{adminProfile.admin.role?adminProfile.admin.role:'Unknown'}</p>
         </div>
-        <button className="text-neutral-500 hover:text-white transition-colors">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-          </svg>
+        <button 
+          onClick={handleLogoutClick}
+          className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50/10 rounded-lg transition-colors"
+          title="Đăng xuất"
+        >
+          <LogOut className="w-5 h-5" />
         </button>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {isLogoutModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
+              <h3 className="text-lg font-bold text-neutral-900 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-500" />
+                Đăng xuất
+              </h3>
+              <button 
+                onClick={() => setIsLogoutModalOpen(false)}
+                className="p-2 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              <p className="text-neutral-600 text-sm">
+                Bạn có chắc chắn muốn đăng xuất khỏi tài khoản quản trị viên không? Bạn sẽ cần đăng nhập lại để tiếp tục thao tác.
+              </p>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-neutral-100 bg-neutral-50 flex items-center justify-end gap-3 rounded-b-2xl">
+              <button
+                onClick={() => setIsLogoutModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 bg-white border border-neutral-200 hover:bg-neutral-50 rounded-lg transition-colors"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-sm"
+              >
+                Đăng xuất
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 };

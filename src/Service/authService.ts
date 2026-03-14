@@ -14,6 +14,12 @@ export const authService = {
     return response.data;
   },
 
+  // Đăng xuất admin
+  logoutAdmin: async () => {
+    const response = await api.post('/admin/logout');
+    return response.data;
+  },
+
   // Đăng nhập
   login: async (data: any) => {
     const response = await api.post('/login', data);
