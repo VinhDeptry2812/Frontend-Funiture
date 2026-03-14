@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Search, ShoppingCart, Menu, X, Armchair, User, ChevronDown, Loader2, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { authService } from '../Service/authService';
+import { SearchBar } from './layout/Header/SearchBar';
+import { UserMenu } from './layout/Header/UserMenu';
 
 interface HeaderProps {
   onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile' | 'contact' | 'about' | '500', productId?: number) => void;
@@ -117,14 +119,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
         </div>
 
         <div className="flex items-center gap-4 lg:gap-6">
-          <div className="hidden sm:flex items-center bg-neutral-100 rounded-full px-4 py-2 w-48 lg:w-64">
-            <Search className="h-4 w-4 text-neutral-400" />
-            <input 
-              type="text" 
-              placeholder="Tìm kiếm..." 
-              className="bg-transparent border-none focus:ring-0 text-sm w-full ml-2"
-            />
-          </div>
+          <SearchBar />
           
           <div className="flex items-center gap-2 sm:gap-4">
             <button 
@@ -139,23 +134,11 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
               )}
             </button>
             
-            <button 
-              className="group flex items-center justify-center transition-all" 
-              title={user ? `Xin chào, ${user.name}` : "Tài khoản"}
-              onClick={() => onNavigate('profile')}
-            >
-              <div className="p-2 hover:bg-neutral-100 rounded-full transition-colors">
-                {loading ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-neutral-400" />
-                ) : user ? (
-                  <div className="h-7 w-7 bg-black text-white rounded-full flex items-center justify-center text-[10px] font-black uppercase tracking-tighter ring-2 ring-white ring-offset-1 group-hover:scale-110 transition-transform">
-                    {user.name?.charAt(0) || 'U'}
-                  </div>
-                ) : (
-                  <User className="h-6 w-6 text-neutral-600" />
-                )}
-              </div>
-            </button>
+            <UserMenu 
+              user={user} 
+              loading={loading} 
+              onNavigate={onNavigate} 
+            />
 
             <button 
               className="md:hidden p-2"

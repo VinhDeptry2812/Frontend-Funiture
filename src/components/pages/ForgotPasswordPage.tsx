@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Mail, Armchair, ArrowLeft, LockKeyhole, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { authService } from '../Service/authService';
-import { useToast } from '../contexts/ToastContext';
+import { authService } from '../../Service/authService';
+import { useToast } from '../../contexts/ToastContext';
 
 interface ForgotPasswordPageProps {
   onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile') => void;

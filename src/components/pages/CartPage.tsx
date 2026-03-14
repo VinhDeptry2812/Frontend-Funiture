@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Minus, Plus, Truck, Wallet, ArrowRight, Lock, ChevronRight, Armchair, CreditCard, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
-import { formatPrice, getImageUrl } from '../utils';
+import { formatPrice, getImageUrl } from '../../utils';
 
 interface CartPageProps {
   cartItems: { product: any; quantity: number }[];

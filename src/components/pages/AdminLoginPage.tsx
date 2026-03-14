@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, Armchair, ArrowLeft, ShieldCheck, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { authService } from '../Service/authService';
-import { useToast } from '../contexts/ToastContext';
+import { authService } from '../../Service/authService';
+import { useToast } from '../../contexts/ToastContext';
 
 interface AdminLoginPageProps {
   onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile') => void;

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, Star, Minus, Plus, ShoppingCart, Truck, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { productService } from '../Service/productService';
-import { formatPrice, getImageUrl } from '../utils';
+import { productService } from '../../Service/productService';
+import { formatPrice, getImageUrl } from '../../utils';
 
 interface ProductDetailProps {
   product: any;

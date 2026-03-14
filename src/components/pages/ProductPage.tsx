@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { ChevronRight, ChevronDown, Loader2, Filter, X, Grid, List, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { productService } from '../Service/productService';
-import { formatPrice, getImageUrl } from '../utils';
+import { productService } from '../../Service/productService';
+import { formatPrice, getImageUrl } from '../../utils';
 
 interface ProductPageProps {
   onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile', productId?: number) => void;
