@@ -5,7 +5,7 @@ import { authService } from '../../Service/authService';
 import { useToast } from '../../contexts/ToastContext';
 
 interface AdminLoginPageProps {
-  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile') => void;
+  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'admin-dashboard' | 'profile') => void;
 }
 
 export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) => {
@@ -19,20 +19,13 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await authService.login({ email, password });
-      
-      // Giả sử có logic kiểm tra role admin ở đây
-      if (response.user.role !== 'admin' && response.user.role !== 'staff') {
-        showToast('Tài khoản không có quyền truy cập quản trị', 'error');
-        setIsLoading(false);
-        return;
-      }
+      const response = await authService.LoginAdmin({ email, password });
 
-      localStorage.setItem('token', response.access_token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.admin));
       
       showToast('Xác thực quản trị viên thành công. Đang chuyển hướng...', 'success');
-      setTimeout(() => onNavigate('home'), 1500); // Hoặc navigate tới trang admin dashboard nếu có
+      setTimeout(() => onNavigate('admin-dashboard'), 1500);
     } catch (error: any) {
       const message = error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.';
       showToast(message, 'error');
@@ -127,6 +120,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
                     className="w-full h-14 pl-12 pr-12 bg-neutral-50 border border-neutral-100 rounded-none focus:ring-2 focus:ring-black focus:bg-white transition-all outline-none text-base"
                     placeholder="••••••••"
                   />

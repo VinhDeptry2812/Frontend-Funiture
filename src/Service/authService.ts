@@ -1,6 +1,19 @@
+
 import api from './service';
 
 export const authService = {
+  //Đăng nhập admin
+  LoginAdmin: async (data:any)=>{
+    const response = await api.post('/admin/login',data);
+    return response.data;
+  },
+
+  //Lấy thông tin admin
+  getAdminProfile: async () => {
+    const response = await api.get('/admin/me');
+    return response.data;
+  },
+
   // Đăng nhập
   login: async (data: any) => {
     const response = await api.post('/login', data);

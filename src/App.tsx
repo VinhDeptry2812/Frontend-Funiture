@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useParams, useLocation, Navigate } from 'react-router-dom';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { Categories } from './components/Categories';
@@ -25,6 +25,9 @@ import { ContactPage } from './components/pages/ContactPage';
 import { NotFoundPage } from './components/pages/NotFoundPage';
 import { ServerErrorPage } from './components/pages/ServerErrorPage';
 import { AboutPage } from './components/pages/AboutPage';
+import { AdminLayout } from './components/admin/layout/AdminLayout';
+import { AdminDashboard } from './components/admin/pages/AdminDashboard';
+import { AdminCategories } from './components/admin/pages/AdminCategories';
 import { productService } from './Service/productService';
 import { Product } from './types';
 
@@ -50,6 +53,7 @@ function AppContent() {
     else if (v === 'forgot-password') navigate('/forgot-password');
     else if (v === 'reset-password') navigate('/reset-password');
     else if (v === 'admin-login') navigate('/admin/login');
+    else if (v === 'admin-dashboard') navigate('/admin/dashboard');
     else if (v === 'profile') navigate('/profile');
     else if (v === 'contact') navigate('/contact');
     else if (v === 'about') navigate('/about');
@@ -139,6 +143,18 @@ function AppContent() {
         <Route path="/forgot-password" element={<ForgotPasswordPage onNavigate={handleNavigate as any} />} />
         <Route path="/reset-password" element={<ResetPasswordPage onNavigate={handleNavigate as any} />} />
         <Route path="/admin/login" element={<AdminLoginPage onNavigate={handleNavigate as any} />} />
+
+        {/* Admin Dashboard Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="orders" element={<div className="p-8 bg-white m-8 rounded-2xl shadow-sm h-64 flex items-center justify-center font-bold text-neutral-400">Orders Page (Coming soon)</div>} />
+          <Route path="categories" element={<AdminCategories />} />
+          <Route path="products" element={<div className="p-8 bg-white m-8 rounded-2xl shadow-sm h-64 flex items-center justify-center font-bold text-neutral-400">Products Page (Coming soon)</div>} />
+          <Route path="customers" element={<div className="p-8 bg-white m-8 rounded-2xl shadow-sm h-64 flex items-center justify-center font-bold text-neutral-400">Customers Page (Coming soon)</div>} />
+          <Route path="reports" element={<div className="p-8 bg-white m-8 rounded-2xl shadow-sm h-64 flex items-center justify-center font-bold text-neutral-400">Reports Page (Coming soon)</div>} />
+          <Route path="settings" element={<div className="p-8 bg-white m-8 rounded-2xl shadow-sm h-64 flex items-center justify-center font-bold text-neutral-400">Settings Page (Coming soon)</div>} />
+        </Route>
 
         {/* Pages with Header/Footer */}
         <Route path="*" element={

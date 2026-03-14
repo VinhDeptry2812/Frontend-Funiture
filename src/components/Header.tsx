@@ -15,7 +15,13 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [user, setUser] = useState<any>(() => {
     const saved = localStorage.getItem('user');
-    return saved ? JSON.parse(saved) : null;
+    if (!saved || saved === 'undefined') return null;
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      console.error('Lỗi parse user từ localStorage:', e);
+      return null;
+    }
   });
   const [loading, setLoading] = useState(false);
 
