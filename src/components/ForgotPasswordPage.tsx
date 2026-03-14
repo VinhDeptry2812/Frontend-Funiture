@@ -1,12 +1,33 @@
-import React from 'react';
-import { Mail, Armchair, ArrowLeft, LockKeyhole } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, Armchair, ArrowLeft, LockKeyhole, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { authService } from '../Service/authService';
+import { useToast } from '../contexts/ToastContext';
 
 interface ForgotPasswordPageProps {
   onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile') => void;
 }
 
 export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNavigate }) => {
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { showToast } = useToast();
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      await authService.forgotPassword(email);
+      showToast('Đã gửi email khôi phục mật khẩu. Vui lòng kiểm tra hộp thư của bạn.', 'success');
+      // Thường sẽ điều hướng đến ResetPassword hoặc ở lại thông báo
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại sau.';
+      showToast(message, 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen w-full bg-white text-neutral-900 overflow-hidden">
       {/* Left Side: Aesthetic Image */}
@@ -47,7 +68,7 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
             onClick={() => onNavigate('home')}
           >
             <Armchair className="h-10 w-10 text-black" />
-            <h1 className="text-2xl font-bold tracking-tighter uppercase">NoiThat</h1>
+            <h1 className="text-2xl font-bold tracking-tighter uppercase text-center">NoiThat</h1>
           </div>
 
           {/* Container */}
@@ -66,10 +87,7 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
               </p>
             </div>
 
-            <form className="space-y-6" onSubmit={(e) => {
-              e.preventDefault();
-              onNavigate('reset-password'); // For demo purposes
-            }}>
+            <form className="space-y-6" onSubmit={handleForgotPassword}>
               {/* Email Input */}
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">Email</label>
@@ -77,6 +95,8 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
                   <input 
                     type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full h-14 pl-12 pr-4 bg-neutral-50 border border-neutral-100 rounded-none focus:ring-2 focus:ring-black focus:bg-white transition-all outline-none text-base"
                     placeholder="Nhập email của bạn"
                     required
@@ -87,14 +107,15 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
               {/* Submit Button */}
               <button 
                 type="submit"
-                className="w-full h-14 bg-black text-white font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all active:scale-[0.98]"
+                disabled={isLoading}
+                className="w-full h-14 bg-black text-white font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
               >
+                {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
                 Gửi liên kết đặt lại
               </button>
             </form>
 
-            {/* Footer Link */}
-            <p className="mt-12 text-center text-neutral-500 text-sm">
+            <div className="mt-12 text-center text-neutral-500 text-sm">
               Nhớ lại mật khẩu? 
               <button 
                 onClick={() => onNavigate('login')}
@@ -102,15 +123,14 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
               >
                 Đăng nhập
               </button>
-            </p>
+            </div>
           </motion.div>
         </div>
 
-        {/* Bottom Legal */}
         <div className="py-8 flex justify-center gap-8 text-[10px] uppercase tracking-widest font-bold text-neutral-300 border-t border-neutral-50">
-          <a href="#" className="hover:text-black transition-colors">Bảo mật</a>
-          <a href="#" className="hover:text-black transition-colors">Điều khoản</a>
-          <a href="#" className="hover:text-black transition-colors">Trợ giúp</a>
+          <button className="hover:text-black transition-colors">Bảo mật</button>
+          <button className="hover:text-black transition-colors">Điều khoản</button>
+          <button className="hover:text-black transition-colors">Trợ giúp</button>
         </div>
       </div>
     </div>

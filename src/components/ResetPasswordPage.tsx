@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Lock, Armchair, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, Lock, Armchair, ArrowLeft, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { authService } from '../Service/authService';
+import { useToast } from '../contexts/ToastContext';
 
 interface ResetPasswordPageProps {
   onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile') => void;
@@ -8,7 +10,37 @@ interface ResetPasswordPageProps {
 
 export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onNavigate }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [token, setToken] = useState(''); // Trong thực tế token lấy từ URL
+  const [email, setEmail] = useState(''); 
+  const [isLoading, setIsLoading] = useState(false);
+  const { showToast } = useToast();
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      showToast('Mật khẩu xác nhận không khớp', 'error');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await authService.resetPassword({
+        email,
+        token,
+        password,
+        password_confirmation: confirmPassword
+      });
+      showToast('Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.', 'success');
+      setTimeout(() => onNavigate('login'), 2000);
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
+      showToast(message, 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen w-full bg-white text-neutral-900 overflow-hidden">
@@ -46,11 +78,11 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onNavigate
         <div className="flex-1 flex flex-col items-center justify-center py-24 px-8 sm:px-16 lg:px-20">
           {/* Branding */}
           <div 
-            className="mb-12 flex flex-col items-center gap-2 cursor-pointer"
+            className="mb-8 flex flex-col items-center gap-2 cursor-pointer"
             onClick={() => onNavigate('home')}
           >
             <Armchair className="h-10 w-10 text-black" />
-            <h1 className="text-2xl font-bold tracking-tighter uppercase">NoiThat</h1>
+            <h1 className="text-2xl font-bold tracking-tighter uppercase text-center">NoiThat</h1>
           </div>
 
           {/* Container */}
@@ -62,24 +94,46 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onNavigate
             <div className="mb-10 text-center">
               <h2 className="text-4xl font-bold tracking-tight text-neutral-900">Đặt lại mật khẩu</h2>
               <p className="text-neutral-500 mt-3 leading-relaxed">
-                Vui lòng nhập mật khẩu mới cho tài khoản của bạn.
+                Vui lòng nhập mã xác nhận và mật khẩu mới của bạn.
               </p>
             </div>
 
-            <form className="space-y-6" onSubmit={(e) => {
-              e.preventDefault();
-              onNavigate('login');
-            }}>
-              {/* New Password Input */}
+            <form className="space-y-5" onSubmit={handleResetPassword}>
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">Email</label>
+                <input 
+                  type="email" 
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full h-14 px-4 bg-neutral-50 border border-neutral-100 rounded-none focus:ring-2 focus:ring-black focus:bg-white transition-all outline-none text-base"
+                  placeholder="Nhập email của bạn"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">Mã xác nhận (Token)</label>
+                <input 
+                  type="text" 
+                  required
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  className="w-full h-14 px-4 bg-neutral-50 border border-neutral-100 rounded-none focus:ring-2 focus:ring-black focus:bg-white transition-all outline-none text-base"
+                  placeholder="Nhập mã từ email"
+                />
+              </div>
+
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">Mật khẩu mới</label>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
                   <input 
                     type={showPassword ? "text" : "password"}
-                    className="w-full h-14 pl-12 pr-12 bg-neutral-50 border border-neutral-100 rounded-none focus:ring-2 focus:ring-black focus:bg-white transition-all outline-none text-base"
-                    placeholder="Nhập mật khẩu mới"
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full h-14 pl-12 pr-12 bg-neutral-50 border border-neutral-100 rounded-none focus:ring-2 focus:ring-black focus:bg-white transition-all outline-none text-base"
+                    placeholder="Tối thiểu 8 ký tự"
                   />
                   <button 
                     type="button"
@@ -91,61 +145,37 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onNavigate
                 </div>
               </div>
 
-              {/* Confirm Password Input */}
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">Xác nhận mật khẩu mới</label>
+                <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">Xác nhận mật khẩu</label>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
                   <input 
-                    type={showConfirmPassword ? "text" : "password"}
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full h-14 pl-12 pr-12 bg-neutral-50 border border-neutral-100 rounded-none focus:ring-2 focus:ring-black focus:bg-white transition-all outline-none text-base"
                     placeholder="Nhập lại mật khẩu mới"
-                    required
                   />
-                  <button 
-                    type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-black transition-colors"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
                 </div>
               </div>
 
-              {/* Requirements */}
-              <div className="flex items-start gap-2 text-neutral-500">
-                <CheckCircle2 className="w-4 h-4 mt-0.5 text-neutral-400" />
-                <p className="text-xs leading-relaxed">
-                  Tối thiểu 8 ký tự, bao gồm chữ và số
-                </p>
-              </div>
-
-              {/* Submit Button */}
               <button 
                 type="submit"
-                className="w-full h-14 bg-black text-white font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all active:scale-[0.98]"
+                disabled={isLoading}
+                className="w-full h-14 bg-black text-white font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
               >
+                {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
                 Lưu mật khẩu mới
               </button>
             </form>
-
-            {/* Footer Link */}
-            <div className="mt-12 text-center">
-              <button 
-                onClick={() => onNavigate('login')}
-                className="text-neutral-400 text-sm font-bold uppercase tracking-widest hover:text-black transition-colors flex items-center justify-center gap-2 mx-auto"
-              >
-                <ArrowLeft className="w-4 h-4" /> Quay lại đăng nhập
-              </button>
-            </div>
           </motion.div>
         </div>
 
-        {/* Bottom Legal */}
         <div className="py-8 flex justify-center gap-8 text-[10px] uppercase tracking-widest font-bold text-neutral-300 border-t border-neutral-50">
-          <a href="#" className="hover:text-black transition-colors">Bảo mật</a>
-          <a href="#" className="hover:text-black transition-colors">Điều khoản</a>
-          <a href="#" className="hover:text-black transition-colors">Trợ giúp</a>
+          <button className="hover:text-black transition-colors">Bảo mật</button>
+          <button className="hover:text-black transition-colors">Điều khoản</button>
+          <button className="hover:text-black transition-colors">Trợ giúp</button>
         </div>
       </div>
     </div>

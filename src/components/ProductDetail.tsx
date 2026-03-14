@@ -1,23 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronRight, Star, Minus, Plus, ShoppingCart, Truck, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Product } from '../types';
-import { sofaProducts } from '../constants';
+import { productService } from '../Service/productService';
+import { formatPrice, getImageUrl } from '../utils';
 
 interface ProductDetailProps {
-  product: Product;
+  product: any;
   onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile', productId?: number) => void;
-  onAddToCart: (quantity: number) => void;
+  onAddToCart: (product: any, quantity: number) => void;
 }
 
 export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigate, onAddToCart }) => {
-  const [selectedImage, setSelectedImage] = useState(product.gallery?.[0] || product.image);
+  const [selectedImage, setSelectedImage] = useState(getImageUrl(product.image_url));
   const [quantity, setQuantity] = useState(1);
-  const [selectedColor, setSelectedColor] = useState(product.colors?.[0]);
-  const [selectedSize, setSelectedSize] = useState(product.sizes?.[0]);
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
 
-  const relatedProducts = sofaProducts.filter(p => p.id !== product.id).slice(0, 4);
+  useEffect(() => {
+    setSelectedImage(getImageUrl(product.image_url));
+    
+    // Fetch related products (e.g., from same category)
+    const fetchRelated = async () => {
+      try {
+        const response = await productService.getProducts();
+        setRelatedProducts(response.data.filter((p: any) => p.id !== product.id).slice(0, 4));
+      } catch (error) {
+        console.error('Failed to fetch related products:', error);
+      }
+    };
+    fetchRelated();
+  }, [product]);
 
   return (
     <div className="bg-white">
@@ -29,10 +41,10 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigat
           </li>
           <ChevronRight className="h-4 w-4" />
           <li>
-            <button onClick={() => onNavigate('products')} className="hover:text-black transition-colors">Sofa</button>
+            <button onClick={() => onNavigate('products')} className="hover:text-black transition-colors">Sản phẩm</button>
           </li>
           <ChevronRight className="h-4 w-4" />
-          <li className="font-medium text-black">{product.name}</li>
+          <li className="font-medium text-black truncate max-w-[200px]">{product.name}</li>
         </ol>
       </nav>
 
@@ -48,16 +60,15 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigat
                 referrerPolicy="no-referrer"
               />
             </div>
+            {/* Gallery placeholder or actual variants */}
             <div className="grid grid-cols-4 gap-4">
-              {product.gallery?.map((img, idx) => (
-                <button 
-                  key={idx}
-                  onClick={() => setSelectedImage(img)}
-                  className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedImage === img ? 'border-black' : 'border-transparent hover:border-neutral-300'}`}
+               {/* Nếu backend có gallery thì map ở đây, hiện tại dùng variant images nếu có hoặc mặc định */}
+               <button 
+                  onClick={() => setSelectedImage(getImageUrl(product.image_url))}
+                  className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedImage === getImageUrl(product.image_url) ? 'border-black' : 'border-transparent hover:border-neutral-300'}`}
                 >
-                  <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <img src={getImageUrl(product.image_url)} alt="Main" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 </button>
-              ))}
             </div>
           </div>
 
@@ -71,48 +82,36 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigat
                     <Star key={i} className={`h-5 w-5 ${i < 4 ? 'fill-current' : 'fill-none'}`} />
                   ))}
                 </div>
-                <span className="text-sm text-neutral-500">42 Đánh giá</span>
+                <span className="text-sm text-neutral-500">Người dùng yêu thích</span>
               </div>
-              <p className="text-3xl font-bold text-black">{product.price}</p>
+              <div className="flex items-center gap-3">
+                <p className="text-3xl font-bold text-black">{formatPrice(product.sale_price || product.base_price)}</p>
+                {product.sale_price && product.base_price > product.sale_price && (
+                  <p className="text-xl text-neutral-400 line-through">{formatPrice(product.base_price)}</p>
+                )}
+              </div>
             </div>
 
             <p className="text-neutral-600 leading-relaxed">
-              {product.description || 'Sản phẩm cao cấp với thiết kế hiện đại, mang lại sự thoải mái và sang trọng cho không gian sống của bạn.'}
+              {product.description || 'Sản phẩm nội thất cao cấp với phong cách Scandinavian tối giản, mang lại sự sang trọng và ấm cúng cho không gian sống của bạn.'}
             </p>
 
             <div className="space-y-6">
-              {product.colors && (
-                <div>
-                  <span className="block text-xs font-bold uppercase tracking-widest mb-3 text-neutral-400">Màu sắc</span>
-                  <div className="flex gap-3">
-                    {product.colors.map(color => (
-                      <button 
-                        key={color}
-                        onClick={() => setSelectedColor(color)}
-                        style={{ backgroundColor: color }}
-                        className={`w-8 h-8 rounded-full ring-offset-2 transition-all ${selectedColor === color ? 'ring-2 ring-black' : 'hover:ring-2 ring-neutral-200'}`}
-                      />
-                    ))}
+              {/* Material/Brand info */}
+              <div className="grid grid-cols-2 gap-4">
+                {product.material && (
+                  <div>
+                    <span className="block text-xs font-bold uppercase tracking-widest mb-1 text-neutral-400">Chất liệu</span>
+                    <span className="text-sm font-medium">{product.material}</span>
                   </div>
-                </div>
-              )}
-
-              {product.sizes && (
-                <div>
-                  <span className="block text-xs font-bold uppercase tracking-widest mb-3 text-neutral-400">Kích thước</span>
-                  <div className="flex gap-3">
-                    {product.sizes.map(size => (
-                      <button 
-                        key={size}
-                        onClick={() => setSelectedSize(size)}
-                        className={`px-6 py-2 border text-sm font-medium transition-all ${selectedSize === size ? 'bg-black text-white border-black' : 'border-neutral-200 hover:border-black'}`}
-                      >
-                        {size}
-                      </button>
-                    ))}
+                )}
+                {product.brand && (
+                  <div>
+                    <span className="block text-xs font-bold uppercase tracking-widest mb-1 text-neutral-400">Thương hiệu</span>
+                    <span className="text-sm font-medium">{product.brand}</span>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
               <div>
                 <span className="block text-xs font-bold uppercase tracking-widest mb-3 text-neutral-400">Số lượng</span>
@@ -135,7 +134,10 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigat
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <button className="flex-1 bg-black text-white py-4 font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2">
+              <button 
+                onClick={() => onAddToCart(product, quantity)}
+                className="flex-1 bg-black text-white py-4 font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2"
+              >
                 <ShoppingCart className="h-5 w-5" /> Thêm vào giỏ hàng
               </button>
               <button className="flex-1 border-2 border-black text-black py-4 font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all">
@@ -148,13 +150,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigat
                 <div className="bg-neutral-100 p-2 rounded-full">
                   <Truck className="h-5 w-5 text-black" />
                 </div>
-                <span className="text-xs font-medium text-neutral-500">Giao hàng miễn phí nội thành</span>
+                <span className="text-xs font-medium text-neutral-500">Giao hàng toàn quốc</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="bg-neutral-100 p-2 rounded-full">
                   <ShieldCheck className="h-5 w-5 text-black" />
                 </div>
-                <span className="text-xs font-medium text-neutral-500">Bảo hành 2 năm tận nơi</span>
+                <span className="text-xs font-medium text-neutral-500">Bảo hành chính hãng</span>
               </div>
             </div>
           </div>
@@ -173,13 +175,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigat
               onClick={() => setActiveTab('specs')}
               className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all border-b-2 ${activeTab === 'specs' ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'}`}
             >
-              Thông số kỹ thuật
-            </button>
-            <button 
-              onClick={() => setActiveTab('reviews')}
-              className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all border-b-2 ${activeTab === 'reviews' ? 'border-black text-black' : 'border-transparent text-neutral-400 hover:text-black'}`}
-            >
-              Đánh giá (42)
+              Chi tiết
             </button>
           </div>
 
@@ -187,51 +183,40 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigat
             {activeTab === 'description' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 <div className="space-y-6">
-                  <p className="text-neutral-600 leading-relaxed">
-                    {product.description}
+                  <p className="text-neutral-600 leading-relaxed font-light">
+                    {product.description || 'Không có mô tả chi tiết cho sản phẩm này.'}
                   </p>
                   <ul className="space-y-4">
                     <li className="flex items-start gap-4">
                       <CheckCircle2 className="h-6 w-6 text-black shrink-0" />
                       <div>
-                        <h4 className="font-bold text-sm">Chất liệu thân thiện</h4>
-                        <p className="text-sm text-neutral-500">Vải sợi tự nhiên không gây kích ứng da, dễ vệ sinh.</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-4">
-                      <CheckCircle2 className="h-6 w-6 text-black shrink-0" />
-                      <div>
-                        <h4 className="font-bold text-sm">Đệm ngồi foam mật độ cao</h4>
-                        <p className="text-sm text-neutral-500">Duy trì form dáng sau thời gian dài sử dụng.</p>
+                        <h4 className="font-bold text-sm">Chất lượng đảm bảo</h4>
+                        <p className="text-sm text-neutral-500">Sản phẩm được kiểm định nghiêm ngặt trước khi xuất xưởng.</p>
                       </div>
                     </li>
                   </ul>
-                </div>
-                <div className="bg-neutral-50 p-8 rounded-2xl">
-                  <h4 className="font-bold text-lg mb-6">Đặc điểm nổi bật</h4>
-                  <p className="text-neutral-600 text-sm leading-relaxed">
-                    Thiết kế dựa trên triết lý "Less is More", tập trung vào những đường nét thanh mảnh nhưng vô cùng chắc chắn. Phù hợp với nhiều phong cách nội thất từ hiện đại đến tối giản.
-                  </p>
                 </div>
               </div>
             )}
 
             {activeTab === 'specs' && (
               <div className="max-w-2xl">
-                <div className="space-y-4">
-                  {product.specs && Object.entries(product.specs).map(([key, value]) => (
-                    <div key={key} className="flex justify-between border-b border-neutral-100 pb-4">
-                      <span className="text-sm text-neutral-500">{key}</span>
-                      <span className="text-sm font-bold text-black">{value}</span>
+                <div className="space-y-4 font-light">
+                   <div className="flex justify-between border-b border-neutral-100 pb-4">
+                      <span className="text-sm text-neutral-500 uppercase tracking-widest">Mã sản phẩm</span>
+                      <span className="text-sm font-bold text-black">{product.sku || 'N/A'}</span>
                     </div>
-                  ))}
+                    {product.category && (
+                      <div className="flex justify-between border-b border-neutral-100 pb-4">
+                        <span className="text-sm text-neutral-500 uppercase tracking-widest">Danh mục</span>
+                        <span className="text-sm font-bold text-black">{product.category.name}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between border-b border-neutral-100 pb-4">
+                      <span className="text-sm text-neutral-500 uppercase tracking-widest">Chất liệu</span>
+                      <span className="text-sm font-bold text-black">{product.material || 'Đang cập nhật'}</span>
+                    </div>
                 </div>
-              </div>
-            )}
-
-            {activeTab === 'reviews' && (
-              <div className="text-center py-10">
-                <p className="text-neutral-500">Chưa có đánh giá chi tiết nào được hiển thị ở đây.</p>
               </div>
             )}
           </div>
@@ -258,7 +243,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigat
               >
                 <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-neutral-100 mb-4">
                   <img 
-                    src={p.image} 
+                    src={getImageUrl(p.image_url)} 
                     alt={p.name} 
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     referrerPolicy="no-referrer"
@@ -267,9 +252,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigat
                     Xem chi tiết
                   </button>
                 </div>
-                <h3 className="font-bold text-sm uppercase tracking-tight mb-1">{p.name}</h3>
-                <p className="text-neutral-500 text-sm italic mb-1">Màu sắc đa dạng</p>
-                <p className="font-bold text-black">{p.price}</p>
+                <h3 className="font-bold text-sm uppercase tracking-tight mb-1 truncate">{p.name}</h3>
+                <p className="font-bold text-black">{formatPrice(p.sale_price || p.base_price)}</p>
               </motion.div>
             ))}
           </div>

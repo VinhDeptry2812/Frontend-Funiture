@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Facebook, Mail, Lock, Armchair, ArrowLeft } from 'lucide-react';
 import { motion } from 'motion/react';
+import axios from 'axios';
+import api from '../Service/service';
+import { useToast } from '../contexts/ToastContext';
 
 interface LoginPageProps {
   onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile') => void;
@@ -8,14 +11,49 @@ interface LoginPageProps {
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { showToast } = useToast();
+
+  const handleLogin = async () => {
+    setError('');
+    setIsLoading(true);
+    try {
+      const response = await api.post('/login', {
+        email, password
+      });
+      
+      const { token, user, message } = response.data;
+      
+      // Save data
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      showToast(message || 'Đăng nhập thành công', 'success');
+      
+      // Chuyển hướng sau 1 thời gian ngắn
+      setTimeout(() => {
+        onNavigate('home');
+      }, 1500);
+      
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại.';
+      setError(message);
+      showToast(message, 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen w-full bg-white text-neutral-900 overflow-hidden">
       {/* Left Side: Aesthetic Image */}
       <div className="relative hidden lg:block lg:w-1/2 h-screen">
-        <img 
-          src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=2000" 
-          alt="Interior Design" 
+        <img
+          src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=2000"
+          alt="Interior Design"
           className="absolute inset-0 h-full w-full object-cover grayscale contrast-110"
           referrerPolicy="no-referrer"
         />
@@ -35,7 +73,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
       {/* Right Side: Login Form */}
       <div className="w-full lg:w-1/2 h-screen flex flex-col bg-white relative overflow-y-auto">
         {/* Back Button */}
-        <button 
+        <button
           onClick={() => onNavigate('home')}
           className="absolute top-8 left-8 z-10 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors bg-white/80 backdrop-blur-sm p-2 rounded-lg"
         >
@@ -44,7 +82,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
 
         <div className="flex-1 flex flex-col items-center justify-center py-24 px-8 sm:px-16 lg:px-20">
           {/* Branding */}
-          <div 
+          <div
             className="mb-12 flex flex-col items-center gap-2 cursor-pointer"
             onClick={() => onNavigate('home')}
           >
@@ -53,7 +91,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
           </div>
 
           {/* Login Container */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="w-full max-w-[400px]"
@@ -63,16 +101,35 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
               <p className="text-neutral-500 mt-3">Chào mừng bạn trở lại với không gian đẳng cấp.</p>
             </div>
 
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <form 
+              className="space-y-6" 
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleLogin();
+              }}
+            >
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="p-4 bg-rose-50 border border-rose-100 text-rose-600 text-sm font-medium"
+                >
+                  {error}
+                </motion.div>
+              )}
               {/* Email Input */}
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">Email</label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
-                  <input 
-                    type="email" 
+                  <input
+                    type="email"
                     className="w-full h-14 pl-12 pr-4 bg-neutral-50 border border-neutral-100 rounded-none focus:ring-2 focus:ring-black focus:bg-white transition-all outline-none text-base"
                     placeholder="name@example.com"
+                    value={email}
+                    onChange={
+                      (e) => setEmail(e.target.value)
+                    }
                   />
                 </div>
               </div>
@@ -81,7 +138,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
               <div className="space-y-2">
                 <div className="flex justify-between items-end">
                   <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">Mật khẩu</label>
-                  <button 
+                  <button
                     onClick={() => onNavigate('forgot-password')}
                     className="text-xs font-bold uppercase tracking-widest text-neutral-900 hover:underline underline-offset-4"
                   >
@@ -90,12 +147,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
                 </div>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
-                  <input 
+                  <input
                     type={showPassword ? "text" : "password"}
                     className="w-full h-14 pl-12 pr-12 bg-neutral-50 border border-neutral-100 rounded-none focus:ring-2 focus:ring-black focus:bg-white transition-all outline-none text-base"
                     placeholder="••••••••"
+                    value={password}
+                    onChange={
+                      (e) => setPassword(e.target.value)
+                    }
                   />
-                  <button 
+                  <button
                     type="button"
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-black transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
@@ -112,12 +173,23 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
               </label>
 
               {/* Login Button */}
-              <button 
+              <button
                 type="submit"
-                className="w-full h-14 bg-black text-white font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all active:scale-[0.98]"
-                onClick={() => onNavigate('home')}
+                disabled={isLoading}
+                className="w-full h-14 bg-black text-white font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Đăng nhập ngay
+                {isLoading ? (
+                  <>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                    />
+                    Đang xử lý...
+                  </>
+                ) : (
+                  'Đăng nhập ngay'
+                )}
               </button>
             </form>
 
@@ -150,8 +222,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
 
             {/* Footer Link */}
             <p className="mt-12 text-center text-neutral-500 text-sm">
-              Chưa có tài khoản? 
-              <button 
+              Chưa có tài khoản?
+              <button
                 onClick={() => onNavigate('register')}
                 className="text-black font-bold uppercase tracking-widest hover:underline underline-offset-4 ml-2"
               >

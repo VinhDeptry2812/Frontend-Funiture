@@ -25,7 +25,7 @@ import { ContactPage } from './components/ContactPage';
 import { NotFoundPage } from './components/NotFoundPage';
 import { ServerErrorPage } from './components/ServerErrorPage';
 import { AboutPage } from './components/AboutPage';
-import { products, sofaProducts } from './constants';
+import { productService } from './Service/productService';
 import { Product } from './types';
 
 const ScrollToTop = () => {
@@ -38,12 +38,7 @@ const ScrollToTop = () => {
 
 function AppContent() {
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState<{ product: Product; quantity: number }[]>([
-    { product: sofaProducts[0], quantity: 1 },
-    { product: products[0], quantity: 2 }
-  ]);
-
-  const allProducts = [...products, ...sofaProducts];
+  const [cartItems, setCartItems] = useState<{ product: any; quantity: number }[]>([]);
 
   const handleNavigate = (v: string, id?: number) => {
     if (v === 'home') navigate('/');
@@ -61,7 +56,7 @@ function AppContent() {
     else if (v === '500') navigate('/500');
   };
 
-  const addToCart = (product: Product, quantity: number = 1) => {
+  const addToCart = (product: any, quantity: number = 1) => {
     setCartItems(prev => {
       const existing = prev.find(item => item.product.id === product.id);
       if (existing) {
@@ -93,13 +88,42 @@ function AppContent() {
 
   const ProductDetailWrapper = () => {
     const { id } = useParams<{ id: string }>();
-    const product = allProducts.find(p => p.id === Number(id));
-    if (!product) return <div>Product not found</div>;
+    const [product, setProduct] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      const fetchProduct = async () => {
+        if (!id) return;
+        try {
+          const res = await productService.getProductById(id);
+          setProduct(res.data);
+        } catch (error) {
+          console.error('Failed to fetch product:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchProduct();
+    }, [id]);
+
+    if (loading) return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+      </div>
+    );
+    
+    if (!product) return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <h2 className="text-2xl font-bold">Sản phẩm không tồn tại</h2>
+        <button onClick={() => handleNavigate('products')} className="bg-black text-white px-6 py-2">Quay lại cửa hàng</button>
+      </div>
+    );
+
     return (
       <ProductDetail 
         product={product} 
         onNavigate={handleNavigate as any} 
-        onAddToCart={(qty) => addToCart(product, qty)}
+        onAddToCart={(p, qty) => addToCart(p, qty)}
       />
     );
   };
@@ -148,10 +172,14 @@ function AppContent() {
   );
 }
 
+import { ToastProvider } from './contexts/ToastContext';
+
 export default function App() {
   return (
     <Router>
-      <AppContent />
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </Router>
   );
 }

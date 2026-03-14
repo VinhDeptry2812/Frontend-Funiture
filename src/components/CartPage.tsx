@@ -1,10 +1,10 @@
 import React from 'react';
 import { X, Minus, Plus, Truck, Wallet, ArrowRight, Lock, ChevronRight, Armchair, CreditCard, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Product } from '../types';
+import { formatPrice, getImageUrl } from '../utils';
 
 interface CartPageProps {
-  cartItems: { product: Product; quantity: number }[];
+  cartItems: { product: any; quantity: number }[];
   onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile', productId?: number) => void;
   onUpdateQuantity: (productId: number, delta: number) => void;
   onRemoveItem: (productId: number) => void;
@@ -17,13 +17,9 @@ export const CartPage: React.FC<CartPageProps> = ({
   onRemoveItem 
 }) => {
   const subtotal = cartItems.reduce((sum, item) => {
-    const price = parseInt(item.product.price.replace(/[^\d]/g, ''));
+    const price = item.product.sale_price || item.product.base_price;
     return sum + price * item.quantity;
   }, 0);
-
-  const formatPrice = (amount: number) => {
-    return amount.toLocaleString('vi-VN') + ' VND';
-  };
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
@@ -42,9 +38,9 @@ export const CartPage: React.FC<CartPageProps> = ({
           </div>
           {/* Progress Indicator */}
           <nav className="hidden md:flex items-center gap-4 text-sm font-medium">
-            <button onClick={() => onNavigate('cart')} className="text-slate-400 hover:text-black transition-colors">Giỏ hàng</button>
+            <button onClick={() => onNavigate('cart')} className="text-black border-b-2 border-black pb-1">Giỏ hàng</button>
             <ChevronRight className="h-4 w-4 text-slate-300" />
-            <span className="text-black border-b-2 border-black pb-1">Thanh toán</span>
+            <span className="text-slate-400">Thanh toán</span>
             <ChevronRight className="h-4 w-4 text-slate-300" />
             <span className="text-slate-400">Hoàn tất</span>
           </nav>
@@ -77,9 +73,9 @@ export const CartPage: React.FC<CartPageProps> = ({
                 <div className="space-y-6">
                   {cartItems.map((item) => (
                     <div key={item.product.id} className="flex gap-6 items-center group">
-                      <div className="w-24 h-24 bg-neutral-50 rounded-lg overflow-hidden flex-shrink-0">
+                      <div className="w-24 h-24 bg-neutral-50 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => onNavigate('detail', item.product.id)}>
                         <img 
-                          src={item.product.image} 
+                          src={getImageUrl(item.product.image_url)} 
                           alt={item.product.name} 
                           className="w-full h-full object-cover"
                           referrerPolicy="no-referrer"
@@ -89,7 +85,7 @@ export const CartPage: React.FC<CartPageProps> = ({
                         <div className="flex justify-between items-start">
                           <h3 
                             onClick={() => onNavigate('detail', item.product.id)}
-                            className="font-bold text-lg cursor-pointer hover:underline"
+                            className="font-bold text-lg cursor-pointer hover:underline truncate max-w-[200px]"
                           >
                             {item.product.name}
                           </h3>
@@ -101,25 +97,25 @@ export const CartPage: React.FC<CartPageProps> = ({
                           </button>
                         </div>
                         <p className="text-slate-500 text-sm mt-1">
-                          Màu sắc: {item.product.colors?.[0]?.name || 'Mặc định'}
+                          Mã SP: {item.product.sku || 'N/A'}
                         </p>
                         <div className="flex justify-between items-end mt-2">
                           <div className="flex items-center border border-slate-200 rounded px-2 py-1 gap-4">
                             <button 
                               onClick={() => onUpdateQuantity(item.product.id, -1)}
-                              className="text-slate-400 hover:text-black transition-colors"
+                              className="text-slate-400 hover:text-black transition-colors px-1"
                             >
                               <Minus className="h-3 w-3" />
                             </button>
-                            <span className="text-sm font-bold">{item.quantity}</span>
+                            <span className="text-sm font-bold min-w-[20px] text-center">{item.quantity}</span>
                             <button 
                               onClick={() => onUpdateQuantity(item.product.id, 1)}
-                              className="text-slate-400 hover:text-black transition-colors"
+                              className="text-slate-400 hover:text-black transition-colors px-1"
                             >
                               <Plus className="h-3 w-3" />
                             </button>
                           </div>
-                          <p className="font-bold">{item.product.price}</p>
+                          <p className="font-bold">{formatPrice(item.product.sale_price || item.product.base_price)}</p>
                         </div>
                       </div>
                     </div>
@@ -200,7 +196,7 @@ export const CartPage: React.FC<CartPageProps> = ({
 
           {/* Right Column: Order Summary Sidebar */}
           <div className="lg:col-span-5">
-            <div className="sticky top-28 bg-neutral-50 p-8 rounded-xl">
+            <div className="sticky top-28 bg-neutral-50 p-8 rounded-xl border border-neutral-100 shadow-sm">
               <h2 className="text-xl font-bold mb-8 tracking-tight">Tóm tắt đơn hàng</h2>
               <div className="space-y-4 mb-8">
                 <div className="flex justify-between text-sm text-slate-600">
@@ -231,7 +227,7 @@ export const CartPage: React.FC<CartPageProps> = ({
                 </div>
               </div>
 
-              <button className="w-full bg-black text-white py-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 group">
+              <button className="w-full bg-black text-white py-4 rounded-lg font-bold text-lg hover:bg-neutral-800 transition-all flex items-center justify-center gap-2 group">
                 Hoàn tất đặt hàng
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </button>
@@ -254,9 +250,9 @@ export const CartPage: React.FC<CartPageProps> = ({
       <footer className="bg-white border-t border-slate-100 py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col items-center gap-6">
           <div className="flex gap-8 text-sm text-slate-500 font-medium">
-            <a className="hover:text-black transition-colors" href="#">Chính sách</a>
-            <a className="hover:text-black transition-colors" href="#">Bảo hành</a>
-            <a className="hover:text-black transition-colors" href="#">Liên hệ</a>
+            <button className="hover:text-black transition-colors">Chính sách</button>
+            <button className="hover:text-black transition-colors">Bảo hành</button>
+            <button className="hover:text-black transition-colors">Liên hệ</button>
           </div>
           <p className="text-sm text-slate-400">© 2026 NoiThat. All rights reserved.</p>
         </div>

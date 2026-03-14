@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, Armchair, ArrowLeft, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Armchair, ArrowLeft, ShieldCheck, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { authService } from '../Service/authService';
+import { useToast } from '../contexts/ToastContext';
 
 interface AdminLoginPageProps {
   onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile') => void;
@@ -8,6 +10,36 @@ interface AdminLoginPageProps {
 
 export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { showToast } = useToast();
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const response = await authService.login({ email, password });
+      
+      // Giả sử có logic kiểm tra role admin ở đây
+      if (response.user.role !== 'admin' && response.user.role !== 'staff') {
+        showToast('Tài khoản không có quyền truy cập quản trị', 'error');
+        setIsLoading(false);
+        return;
+      }
+
+      localStorage.setItem('token', response.access_token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      
+      showToast('Xác thực quản trị viên thành công. Đang chuyển hướng...', 'success');
+      setTimeout(() => onNavigate('home'), 1500); // Hoặc navigate tới trang admin dashboard nếu có
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.';
+      showToast(message, 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen w-full bg-white text-neutral-900 overflow-hidden">
@@ -53,7 +85,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
             onClick={() => onNavigate('home')}
           >
             <Armchair className="h-10 w-10 text-black" />
-            <h1 className="text-2xl font-bold tracking-tighter uppercase">NoiThat</h1>
+            <h1 className="text-2xl font-bold tracking-tighter uppercase text-center">NoiThat</h1>
           </div>
 
           {/* Login Container */}
@@ -70,29 +102,31 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
               <p className="text-neutral-500 mt-3 font-medium">Vui lòng đăng nhập để tiếp tục quản trị hệ thống.</p>
             </div>
 
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-              {/* Admin ID / Email */}
+            <form className="space-y-6" onSubmit={handleAdminLogin}>
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">Mã quản trị viên / Email</label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
                   <input 
-                    type="text" 
+                    type="email" 
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full h-14 pl-12 pr-4 bg-neutral-50 border border-neutral-100 rounded-none focus:ring-2 focus:ring-black focus:bg-white transition-all outline-none text-base font-medium"
                     placeholder="admin@noithat.vn"
                   />
                 </div>
               </div>
 
-              {/* Password */}
               <div className="space-y-2">
-                <div className="flex justify-between items-end">
-                  <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">Mật khẩu bảo mật</label>
-                </div>
+                <label className="text-xs font-bold uppercase tracking-widest text-neutral-500">Mật khẩu bảo mật</label>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
                   <input 
                     type={showPassword ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="w-full h-14 pl-12 pr-12 bg-neutral-50 border border-neutral-100 rounded-none focus:ring-2 focus:ring-black focus:bg-white transition-all outline-none text-base"
                     placeholder="••••••••"
                   />
@@ -106,7 +140,6 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
                 </div>
               </div>
 
-              {/* Security Note */}
               <div className="p-4 bg-neutral-50 border border-neutral-100 flex gap-3 items-start">
                 <div className="w-1 h-full bg-black shrink-0" />
                 <p className="text-[11px] text-neutral-500 leading-relaxed uppercase font-bold tracking-wider">
@@ -114,12 +147,12 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
                 </p>
               </div>
 
-              {/* Login Button */}
               <button 
                 type="submit"
+                disabled={isLoading}
                 className="w-full h-14 bg-black text-white font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                onClick={() => onNavigate('home')}
               >
+                {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
                 Xác thực & Truy cập
               </button>
             </form>
@@ -135,11 +168,10 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
           </motion.div>
         </div>
 
-        {/* Bottom Legal */}
         <div className="py-8 flex justify-center gap-8 text-[10px] uppercase tracking-widest font-bold text-neutral-300 border-t border-neutral-50">
           <span>NoiThat Admin v2.1.0</span>
-          <a href="#" className="hover:text-black transition-colors">Bảo mật hệ thống</a>
-          <a href="#" className="hover:text-black transition-colors">Hỗ trợ kỹ thuật</a>
+          <button className="hover:text-black transition-colors">Bảo mật hệ thống</button>
+          <button className="hover:text-black transition-colors">Hỗ trợ kỹ thuật</button>
         </div>
       </div>
     </div>
