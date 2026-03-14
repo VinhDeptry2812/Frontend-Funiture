@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Search, ShoppingCart, Menu, X, Armchair, User, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, ShoppingCart, Menu, X, Armchair, User, ChevronDown, Loader2, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { authService } from '../Service/authService';
 
 interface HeaderProps {
   onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile' | 'contact' | 'about' | '500', productId?: number) => void;
@@ -10,6 +11,39 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        setLoading(true);
+        try {
+          const res = await authService.getProfile();
+          setUser(res);
+        } catch (error) {
+          console.error("Lỗi lấy thông tin người dùng:", error);
+          localStorage.removeItem('token');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      localStorage.removeItem('token');
+      setUser(null);
+      onNavigate('home');
+      setIsMenuOpen(false);
+    } catch (error) {
+      console.error("Lỗi đăng xuất:", error);
+    }
+  };
 
   const categories = ['Sofa', 'Bàn ghế', 'Phòng ngủ', 'Trang trí', 'Đèn chiếu sáng'];
 
@@ -103,11 +137,21 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
             </button>
             
             <button 
-              className="p-2 hover:bg-neutral-100 rounded-full transition-colors" 
-              title="Tài khoản"
+              className="group flex items-center justify-center transition-all" 
+              title={user ? `Xin chào, ${user.name}` : "Tài khoản"}
               onClick={() => onNavigate('profile')}
             >
-              <User className="h-6 w-6" />
+              <div className="p-2 hover:bg-neutral-100 rounded-full transition-colors">
+                {loading ? (
+                  <Loader2 className="h-5 w-5 animate-spin text-neutral-400" />
+                ) : user ? (
+                  <div className="h-7 w-7 bg-black text-white rounded-full flex items-center justify-center text-[10px] font-black uppercase tracking-tighter ring-2 ring-white ring-offset-1 group-hover:scale-110 transition-transform">
+                    {user.name?.charAt(0) || 'U'}
+                  </div>
+                ) : (
+                  <User className="h-6 w-6 text-neutral-600" />
+                )}
+              </div>
             </button>
 
             <button 
@@ -168,12 +212,32 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
                 Về chúng tôi
               </button>
               
-              <button 
-                className="mt-4 w-full border border-black py-4 font-bold uppercase flex items-center justify-center gap-2"
-                onClick={() => { onNavigate('login'); setIsMenuOpen(false); }}
-              >
-                <User className="h-5 w-5" /> Đăng nhập
-              </button>
+              {user ? (
+                <div className="space-y-3 pt-4 border-t border-neutral-100">
+                  <button 
+                    className="w-full bg-black text-white py-4 font-bold uppercase flex items-center justify-center gap-2"
+                    onClick={() => { onNavigate('profile'); setIsMenuOpen(false); }}
+                  >
+                    <div className="h-5 w-5 bg-white text-black rounded-full flex items-center justify-center text-[8px] font-black">
+                      {user.name?.charAt(0)}
+                    </div>
+                    Hồ sơ: {user.name}
+                  </button>
+                  <button 
+                    className="w-full border border-neutral-200 py-4 font-bold uppercase text-neutral-500 flex items-center justify-center gap-2 hover:bg-neutral-50"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-5 w-5" /> Đăng xuất
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  className="mt-4 w-full border border-black py-4 font-bold uppercase flex items-center justify-center gap-2"
+                  onClick={() => { onNavigate('login'); setIsMenuOpen(false); }}
+                >
+                  <User className="h-5 w-5" /> Đăng nhập
+                </button>
+              )}
             </div>
           </motion.div>
         )}

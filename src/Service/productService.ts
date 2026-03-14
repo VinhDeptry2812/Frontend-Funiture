@@ -1,9 +1,17 @@
 import api from './service';
 
 export const productService = {
-  // Lấy danh sách sản phẩm
-  getProducts: async () => {
-    const response = await api.get('/products');
+  // Lấy danh sách sản phẩm với các bộ lọc và phân trang
+  getProducts: async (params?: { 
+    cursor?: string; 
+    category_id?: number; 
+    min_price?: number; 
+    max_price?: number; 
+    sort_by?: string; 
+    sort_order?: string;
+    search?: string;
+  }) => {
+    const response = await api.get('/products', { params });
     return response.data;
   },
 
