@@ -4,11 +4,10 @@ import { motion } from 'motion/react';
 import { authService } from '../../Service/authService';
 import { useToast } from '../../contexts/ToastContext';
 
-interface AdminLoginPageProps {
-  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'admin-dashboard' | 'profile') => void;
-}
+import { useNavigate } from 'react-router-dom';
 
-export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) => {
+export const AdminLoginPage: React.FC = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +24,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
       localStorage.setItem('user', JSON.stringify(response.admin));
       
       showToast('Xác thực quản trị viên thành công. Đang chuyển hướng...', 'success');
-      setTimeout(() => onNavigate('admin-dashboard'), 1500);
+      setTimeout(() => navigate('/admin/dashboard'), 1500);
     } catch (error: any) {
       const message = error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.';
       showToast(message, 'error');
@@ -65,7 +64,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
       <div className="w-full lg:w-1/2 h-screen flex flex-col bg-white relative overflow-y-auto">
         {/* Back Button */}
         <button 
-          onClick={() => onNavigate('home')}
+          onClick={() => navigate('/')}
           className="absolute top-8 left-8 z-10 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors bg-white/80 backdrop-blur-sm p-2 rounded-lg"
         >
           <ArrowLeft className="w-4 h-4" /> Quay lại trang chủ
@@ -75,7 +74,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
           {/* Branding */}
           <div 
             className="mb-12 flex flex-col items-center gap-2 cursor-pointer"
-            onClick={() => onNavigate('home')}
+            onClick={() => navigate('/')}
           >
             <Armchair className="h-10 w-10 text-black" />
             <h1 className="text-2xl font-bold tracking-tighter uppercase text-center">NoiThat</h1>
@@ -153,7 +152,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
 
             <div className="mt-12 text-center">
               <button 
-                onClick={() => onNavigate('login')}
+                onClick={() => navigate('/login')}
                 className="text-xs font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors"
               >
                 Bạn là khách hàng? Đăng nhập tại đây

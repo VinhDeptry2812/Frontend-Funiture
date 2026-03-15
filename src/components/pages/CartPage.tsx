@@ -2,20 +2,20 @@ import React from 'react';
 import { X, Minus, Plus, Truck, Wallet, ArrowRight, Lock, ChevronRight, Armchair, CreditCard, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
 import { formatPrice, getImageUrl } from '../../utils';
+import { useNavigate } from 'react-router-dom';
 
 interface CartPageProps {
   cartItems: { product: any; quantity: number }[];
-  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile', productId?: number) => void;
   onUpdateQuantity: (productId: number, delta: number) => void;
   onRemoveItem: (productId: number) => void;
 }
 
 export const CartPage: React.FC<CartPageProps> = ({ 
   cartItems, 
-  onNavigate, 
   onUpdateQuantity, 
   onRemoveItem 
 }) => {
+  const navigate = useNavigate();
   const subtotal = cartItems.reduce((sum, item) => {
     const price = item.product.sale_price || item.product.base_price;
     return sum + price * item.quantity;
@@ -28,7 +28,7 @@ export const CartPage: React.FC<CartPageProps> = ({
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <div 
-            onClick={() => onNavigate('home')}
+            onClick={() => navigate('/')}
             className="flex items-center gap-2 cursor-pointer"
           >
             <div className="w-8 h-8 bg-black flex items-center justify-center rounded-sm">
@@ -38,7 +38,7 @@ export const CartPage: React.FC<CartPageProps> = ({
           </div>
           {/* Progress Indicator */}
           <nav className="hidden md:flex items-center gap-4 text-sm font-medium">
-            <button onClick={() => onNavigate('cart')} className="text-black border-b-2 border-black pb-1">Giỏ hàng</button>
+            <button onClick={() => navigate('/cart')} className="text-black border-b-2 border-black pb-1">Giỏ hàng</button>
             <ChevronRight className="h-4 w-4 text-slate-300" />
             <span className="text-slate-400">Thanh toán</span>
             <ChevronRight className="h-4 w-4 text-slate-300" />
@@ -63,7 +63,7 @@ export const CartPage: React.FC<CartPageProps> = ({
                 <div className="text-center py-12 bg-neutral-50 rounded-xl">
                   <p className="text-neutral-500 mb-6">Giỏ hàng của bạn đang trống</p>
                   <button 
-                    onClick={() => onNavigate('products')}
+                    onClick={() => navigate('/products')}
                     className="bg-black text-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all"
                   >
                     Tiếp tục mua sắm
@@ -73,7 +73,7 @@ export const CartPage: React.FC<CartPageProps> = ({
                 <div className="space-y-6">
                   {cartItems.map((item) => (
                     <div key={item.product.id} className="flex gap-6 items-center group">
-                      <div className="w-24 h-24 bg-neutral-50 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => onNavigate('detail', item.product.id)}>
+                      <div className="w-24 h-24 bg-neutral-50 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => navigate(`/product/${item.product.id}`)}>
                         <img 
                           src={getImageUrl(item.product.image_url)} 
                           alt={item.product.name} 
@@ -84,7 +84,7 @@ export const CartPage: React.FC<CartPageProps> = ({
                       <div className="flex-grow">
                         <div className="flex justify-between items-start">
                           <h3 
-                            onClick={() => onNavigate('detail', item.product.id)}
+                            onClick={() => navigate(`/product/${item.product.id}`)}
                             className="font-bold text-lg cursor-pointer hover:underline truncate max-w-[200px]"
                           >
                             {item.product.name}

@@ -4,11 +4,10 @@ import { motion } from 'motion/react';
 import { authService } from '../../Service/authService';
 import { useToast } from '../../contexts/ToastContext';
 
-interface ForgotPasswordPageProps {
-  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile') => void;
-}
+import { useNavigate } from 'react-router-dom';
 
-export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNavigate }) => {
+export const ForgotPasswordPage: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { showToast } = useToast();
@@ -55,7 +54,7 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
       <div className="w-full lg:w-1/2 h-screen flex flex-col bg-white relative overflow-y-auto">
         {/* Back Button */}
         <button 
-          onClick={() => onNavigate('login')}
+          onClick={() => navigate('/login')}
           className="absolute top-8 left-8 z-10 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors bg-white/80 backdrop-blur-sm p-2 rounded-lg"
         >
           <ArrowLeft className="w-4 h-4" /> Quay lại đăng nhập
@@ -65,7 +64,7 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
           {/* Branding */}
           <div 
             className="mb-12 flex flex-col items-center gap-2 cursor-pointer"
-            onClick={() => onNavigate('home')}
+            onClick={() => navigate('/')}
           >
             <Armchair className="h-10 w-10 text-black" />
             <h1 className="text-2xl font-bold tracking-tighter uppercase text-center">NoiThat</h1>
@@ -118,7 +117,7 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
             <div className="mt-12 text-center text-neutral-500 text-sm">
               Nhớ lại mật khẩu? 
               <button 
-                onClick={() => onNavigate('login')}
+                onClick={() => navigate('/login')}
                 className="text-black font-bold uppercase tracking-widest hover:underline underline-offset-4 ml-2"
               >
                 Đăng nhập

@@ -1,17 +1,16 @@
 import React from 'react';
 import { Armchair, Facebook, Instagram, Twitter } from 'lucide-react';
 
-interface FooterProps {
-  onNavigate?: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile' | 'contact' | 'about' | '500') => void;
-}
+import { useNavigate } from 'react-router-dom';
 
-export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+export const Footer: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <footer className="bg-neutral-50 pt-24 pb-12 border-t border-neutral-200">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20">
           <div className="col-span-2 lg:col-span-2">
-            <button onClick={() => onNavigate?.('home')} className="flex items-center gap-2 mb-6">
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 mb-6">
               <Armchair className="h-6 w-6 text-black" />
               <span className="text-xl font-bold tracking-tighter uppercase">NoiThat</span>
             </button>
@@ -31,7 +30,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <h5 className="font-bold text-sm uppercase tracking-widest mb-6">Cửa hàng</h5>
             <ul className="space-y-4 text-sm text-neutral-500">
               {['Sản phẩm mới', 'Sofa & Armchair', 'Bàn & Ghế ăn', 'Phòng ngủ', 'Đồ trang trí'].map(item => (
-                <li key={item}><button onClick={() => onNavigate?.('products')} className="hover:text-black transition-colors">{item}</button></li>
+                <li key={item}><button onClick={() => navigate('/products')} className="hover:text-black transition-colors">{item}</button></li>
               ))}
             </ul>
           </div>
@@ -48,11 +47,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <div>
             <h5 className="font-bold text-sm uppercase tracking-widest mb-6">Công ty</h5>
             <ul className="space-y-4 text-sm text-neutral-500">
-              <li><button onClick={() => onNavigate?.('about')} className="hover:text-black transition-colors">Về NoiThat</button></li>
-              <li><button onClick={() => onNavigate?.('home')} className="hover:text-black transition-colors">Tuyển dụng</button></li>
-              <li><button onClick={() => onNavigate?.('contact')} className="hover:text-black transition-colors">Liên hệ</button></li>
-              <li><button onClick={() => onNavigate?.('home')} className="hover:text-black transition-colors">Showroom</button></li>
-              <li><button onClick={() => onNavigate?.('home')} className="hover:text-black transition-colors">Tin tức</button></li>
+              <li><button onClick={() => navigate('/about')} className="hover:text-black transition-colors">Về NoiThat</button></li>
+              <li><button onClick={() => navigate('/')} className="hover:text-black transition-colors">Tuyển dụng</button></li>
+              <li><button onClick={() => navigate('/contact')} className="hover:text-black transition-colors">Liên hệ</button></li>
+              <li><button onClick={() => navigate('/')} className="hover:text-black transition-colors">Showroom</button></li>
+              <li><button onClick={() => navigate('/')} className="hover:text-black transition-colors">Tin tức</button></li>
             </ul>
           </div>
         </div>
@@ -63,7 +62,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <a href="#" className="hover:text-black">Điều khoản dịch vụ</a>
             <a href="#" className="hover:text-black">Chính sách bảo mật</a>
             <button 
-              onClick={() => onNavigate?.('admin-login')}
+              onClick={() => navigate('/admin/login')}
               className="hover:text-black transition-colors opacity-50 hover:opacity-100"
             >
               Quản trị viên

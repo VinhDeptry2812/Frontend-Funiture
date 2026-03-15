@@ -6,12 +6,10 @@ import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { SocialLogin } from '../features/auth/SocialLogin';
+import { useNavigate } from 'react-router-dom';
 
-interface RegisterPageProps {
-  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile') => void;
-}
-
-export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
+export const RegisterPage: React.FC = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -41,7 +39,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
       });
       
       showToast('Đăng ký tài khoản thành công! Vui lòng đăng nhập.', 'success');
-      setTimeout(() => onNavigate('login'), 2000);
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err: any) {
       const message = err.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
       setError(message);
@@ -55,7 +53,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));
     showToast(message, 'success');
-    setTimeout(() => onNavigate('home'), 1500);
+    setTimeout(() => navigate('/'), 1500);
   };
 
   return (
@@ -85,7 +83,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
       <div className="w-full lg:w-1/2 h-screen flex flex-col bg-white relative overflow-y-auto">
         {/* Back Button */}
         <button 
-          onClick={() => onNavigate('home')}
+          onClick={() => navigate('/')}
           className="absolute top-8 left-8 z-10 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors bg-white/80 backdrop-blur-sm p-2 rounded-lg"
         >
           <ArrowLeft className="w-4 h-4" /> Quay lại
@@ -95,7 +93,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
           {/* Branding */}
           <div 
             className="mb-8 flex flex-col items-center gap-2 cursor-pointer"
-            onClick={() => onNavigate('home')}
+            onClick={() => navigate('/')}
           >
             <Armchair className="h-10 w-10 text-black" />
             <h1 className="text-2xl font-bold tracking-tighter uppercase text-center">NoiThat</h1>
@@ -185,7 +183,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
             <p className="mt-10 text-center text-neutral-500 text-sm">
               Đã có tài khoản? 
               <button 
-                onClick={() => onNavigate('login')}
+                onClick={() => navigate('/login')}
                 className="text-black font-bold uppercase tracking-widest hover:underline underline-offset-4 ml-2"
               >
                 Đăng nhập ngay

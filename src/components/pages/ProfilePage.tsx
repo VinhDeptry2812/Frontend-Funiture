@@ -16,12 +16,10 @@ import { ProfileInfo } from '../features/profile/ProfileInfo';
 import { OrderList } from '../features/profile/OrderList';
 import { AddressManager } from '../features/profile/AddressManager';
 import { SecuritySettings } from '../features/profile/SecuritySettings';
+import { useNavigate } from 'react-router-dom';
 
-interface ProfilePageProps {
-  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile') => void;
-}
-
-export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
+export const ProfilePage: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -34,7 +32,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
         setUser(response.user);
       } catch (error) {
         showToast('Không thể tải thông tin hồ sơ', 'error');
-        onNavigate('login');
+        navigate('/login');
       } finally {
         setLoading(false);
       }
@@ -48,11 +46,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
       showToast('Đã đăng xuất', 'info');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      onNavigate('login');
+      navigate('/login');
     } catch (error) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      onNavigate('login');
+      navigate('/login');
     }
   };
 
@@ -146,7 +144,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
               )}
 
               {activeTab === 'orders' && (
-                <OrderList onNavigate={onNavigate} />
+                <OrderList />
               )}
 
               {activeTab === 'address' && (

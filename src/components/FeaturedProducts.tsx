@@ -3,11 +3,10 @@ import { motion } from 'motion/react';
 import { productService } from '../Service/productService';
 import { formatPrice, getImageUrl } from '../utils';
 
-interface FeaturedProductsProps {
-  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile', productId?: number) => void;
-}
+import { useNavigate } from 'react-router-dom';
 
-export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ onNavigate }) => {
+export const FeaturedProducts: React.FC = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -59,7 +58,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ onNavigate }
               transition={{ delay: idx * 0.1 }}
               className="group bg-white p-4 transition-all hover:shadow-xl"
             >
-              <div className="relative aspect-square overflow-hidden bg-neutral-100 mb-6 cursor-pointer" onClick={() => onNavigate('detail', product.id)}>
+              <div className="relative aspect-square overflow-hidden bg-neutral-100 mb-6 cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
                 <img 
                   src={getImageUrl(product.image_url)} 
                   alt={product.name} 
@@ -72,11 +71,11 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ onNavigate }
                   </span>
                 )}
               </div>
-              <h3 className="text-lg font-bold mb-1 truncate cursor-pointer" onClick={() => onNavigate('detail', product.id)}>{product.name}</h3>
+              <h3 className="text-lg font-bold mb-1 truncate cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>{product.name}</h3>
               <p className="text-neutral-900 font-bold mb-6">{formatPrice(product.sale_price || product.base_price)}</p>
               <div className="grid grid-cols-2 gap-2">
                 <button 
-                  onClick={() => onNavigate('detail', product.id)}
+                  onClick={() => navigate(`/product/${product.id}`)}
                   className="border border-black py-2.5 text-[10px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all"
                 >
                   Xem chi tiết

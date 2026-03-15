@@ -4,11 +4,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { productService } from '../../Service/productService';
 import { formatPrice, getImageUrl } from '../../utils';
 
-interface ProductPageProps {
-  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile', productId?: number) => void;
-}
+import { useNavigate } from 'react-router-dom';
 
-export const ProductPage: React.FC<ProductPageProps> = ({ onNavigate }) => {
+export const ProductPage: React.FC = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -119,7 +118,7 @@ export const ProductPage: React.FC<ProductPageProps> = ({ onNavigate }) => {
       {/* Header Section */}
       <div className="mb-12">
         <nav className="flex items-center gap-2 text-[10px] text-neutral-400 mb-4 uppercase tracking-[0.2em] font-bold">
-          <button onClick={() => onNavigate('home')} className="hover:text-black transition-colors">Trang chủ</button>
+          <button onClick={() => navigate('/')} className="hover:text-black transition-colors">Trang chủ</button>
           <ChevronRight className="h-3 w-3" />
           <span className="text-neutral-900 border-b border-black/20">Sản Phẩm</span>
         </nav>
@@ -311,7 +310,7 @@ export const ProductPage: React.FC<ProductPageProps> = ({ onNavigate }) => {
                   transition={{ duration: 0.4, delay: (index % 12) * 0.03 }}
                   className="group"
                 >
-                  <div className="aspect-[3/4] bg-neutral-50 overflow-hidden relative mb-8 cursor-pointer" onClick={() => onNavigate('detail', product.id)}>
+                  <div className="aspect-[3/4] bg-neutral-50 overflow-hidden relative mb-8 cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
                     <img
                       src={getImageUrl(product.image_url)}
                       alt={product.name}
@@ -344,7 +343,7 @@ export const ProductPage: React.FC<ProductPageProps> = ({ onNavigate }) => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          onNavigate('detail', product.id);
+                          navigate(`/product/${product.id}`);
                         }}
                         className="w-full bg-white text-black py-4 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all shadow-2xl"
                       >
@@ -355,7 +354,7 @@ export const ProductPage: React.FC<ProductPageProps> = ({ onNavigate }) => {
 
                   <div className="space-y-4 text-center">
                     <h3
-                      onClick={() => onNavigate('detail', product.id)}
+                      onClick={() => navigate(`/product/${product.id}`)}
                       className="text-[13px] font-black text-neutral-900 group-hover:text-black transition-colors cursor-pointer leading-tight uppercase tracking-widest"
                     >
                       {product.name}

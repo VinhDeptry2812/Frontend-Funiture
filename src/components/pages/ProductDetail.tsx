@@ -3,14 +3,15 @@ import { ChevronRight, Star, Minus, Plus, ShoppingCart, Truck, ShieldCheck, Chec
 import { motion } from 'motion/react';
 import { productService } from '../../Service/productService';
 import { formatPrice, getImageUrl } from '../../utils';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductDetailProps {
   product: any;
-  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile', productId?: number) => void;
   onAddToCart: (product: any, quantity: number) => void;
 }
 
-export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigate, onAddToCart }) => {
+export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onAddToCart }) => {
+  const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(getImageUrl(product.image_url));
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
@@ -37,11 +38,11 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigat
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
         <ol className="flex items-center space-x-2 text-sm text-neutral-500">
           <li>
-            <button onClick={() => onNavigate('home')} className="hover:text-black transition-colors">Trang chủ</button>
+            <button onClick={() => navigate('/')} className="hover:text-black transition-colors">Trang chủ</button>
           </li>
           <ChevronRight className="h-4 w-4" />
           <li>
-            <button onClick={() => onNavigate('products')} className="hover:text-black transition-colors">Sản phẩm</button>
+            <button onClick={() => navigate('/products')} className="hover:text-black transition-colors">Sản phẩm</button>
           </li>
           <ChevronRight className="h-4 w-4" />
           <li className="font-medium text-black truncate max-w-[200px]">{product.name}</li>
@@ -227,7 +228,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigat
           <div className="flex items-center justify-between mb-10">
             <h2 className="text-2xl font-bold tracking-tight">Có thể bạn sẽ thích</h2>
             <button 
-              onClick={() => onNavigate('products')}
+              onClick={() => navigate('/products')}
               className="text-sm font-bold underline underline-offset-8 decoration-black hover:opacity-70 transition-opacity"
             >
               Xem tất cả
@@ -239,7 +240,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onNavigat
                 key={p.id}
                 whileHover={{ y: -10 }}
                 className="group cursor-pointer"
-                onClick={() => onNavigate('detail', p.id)}
+                onClick={() => navigate(`/product/${p.id}`)}
               >
                 <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-neutral-100 mb-4">
                   <img 

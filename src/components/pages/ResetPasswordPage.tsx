@@ -4,11 +4,10 @@ import { motion } from 'motion/react';
 import { authService } from '../../Service/authService';
 import { useToast } from '../../contexts/ToastContext';
 
-interface ResetPasswordPageProps {
-  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile') => void;
-}
+import { useNavigate } from 'react-router-dom';
 
-export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onNavigate }) => {
+export const ResetPasswordPage: React.FC = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -33,7 +32,7 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onNavigate
         password_confirmation: confirmPassword
       });
       showToast('Đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.', 'success');
-      setTimeout(() => onNavigate('login'), 2000);
+      setTimeout(() => navigate('/login'), 2000);
     } catch (error: any) {
       const message = error.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
       showToast(message, 'error');
@@ -69,7 +68,7 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onNavigate
       <div className="w-full lg:w-1/2 h-screen flex flex-col bg-white relative overflow-y-auto">
         {/* Back Button */}
         <button 
-          onClick={() => onNavigate('login')}
+          onClick={() => navigate('/login')}
           className="absolute top-8 left-8 z-10 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors bg-white/80 backdrop-blur-sm p-2 rounded-lg"
         >
           <ArrowLeft className="w-4 h-4" /> Quay lại đăng nhập
@@ -79,7 +78,7 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ onNavigate
           {/* Branding */}
           <div 
             className="mb-8 flex flex-col items-center gap-2 cursor-pointer"
-            onClick={() => onNavigate('home')}
+            onClick={() => navigate('/')}
           >
             <Armchair className="h-10 w-10 text-black" />
             <h1 className="text-2xl font-bold tracking-tighter uppercase text-center">NoiThat</h1>

@@ -1,12 +1,10 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight, Heart, Shield, Sparkles, Globe } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface AboutPageProps {
-  onNavigate: (view: string) => void;
-}
-
-export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
+export const AboutPage: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <div className="bg-white">
       {/* Hero Section - Editorial Style */}
@@ -151,13 +149,13 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             </h2>
             <div className="flex flex-wrap gap-4">
               <button 
-                onClick={() => onNavigate('products')}
+                onClick={() => navigate('/products')}
                 className="bg-white text-black px-8 py-4 rounded-full font-bold hover:bg-neutral-200 transition-colors flex items-center gap-2"
               >
                 Khám phá bộ sưu tập <ArrowRight className="h-4 w-4" />
               </button>
               <button 
-                onClick={() => onNavigate('contact')}
+                onClick={() => navigate('/contact')}
                 className="border border-white/30 text-white px-8 py-4 rounded-full font-bold hover:bg-white/10 transition-colors"
               >
                 Liên hệ tư vấn

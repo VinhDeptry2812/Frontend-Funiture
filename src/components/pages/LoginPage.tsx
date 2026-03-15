@@ -6,12 +6,10 @@ import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { SocialLogin } from '../features/auth/SocialLogin';
+import { useNavigate } from 'react-router-dom';
 
-interface LoginPageProps {
-  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile') => void;
-}
-
-export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
+export const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,7 +42,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
     showToast(message || 'Đăng nhập thành công', 'success');
     
     setTimeout(() => {
-      onNavigate('home');
+      navigate('/');
     }, 1500);
   };
 
@@ -75,7 +73,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
       <div className="w-full lg:w-1/2 h-screen flex flex-col bg-white relative overflow-y-auto">
         {/* Back Button */}
         <button
-          onClick={() => onNavigate('home')}
+          onClick={() => navigate('/')}
           className="absolute top-8 left-8 z-10 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors bg-white/80 backdrop-blur-sm p-2 rounded-lg"
         >
           <ArrowLeft className="w-4 h-4" /> Quay lại
@@ -85,7 +83,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
           {/* Branding */}
           <div
             className="mb-12 flex flex-col items-center gap-2 cursor-pointer"
-            onClick={() => onNavigate('home')}
+            onClick={() => navigate('/')}
           >
             <Armchair className="h-10 w-10 text-black" />
             <h1 className="text-2xl font-bold tracking-tighter uppercase">NoiThat</h1>
@@ -133,7 +131,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
                   <label className="text-sm font-bold text-neutral-700 uppercase tracking-wider">Mật khẩu</label>
                   <button
                     type="button"
-                    onClick={() => onNavigate('forgot-password')}
+                    onClick={() => navigate('/forgot-password')}
                     className="text-xs font-bold uppercase tracking-widest text-neutral-900 hover:underline underline-offset-4"
                   >
                     Quên mật khẩu?
@@ -178,7 +176,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
             <p className="mt-12 text-center text-neutral-500 text-sm">
               Chưa có tài khoản?
               <button
-                onClick={() => onNavigate('register')}
+                onClick={() => navigate('/register')}
                 className="text-black font-bold uppercase tracking-widest hover:underline underline-offset-4 ml-2"
               >
                 Đăng ký ngay

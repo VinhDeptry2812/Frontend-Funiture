@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Search, ShoppingCart, Menu, X, Armchair, User, ChevronDown, Loader2, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { authService } from '../Service/authService';
+import { useNavigate, Link } from 'react-router-dom';
 import { SearchBar } from './layout/Header/SearchBar';
 import { UserMenu } from './layout/Header/UserMenu';
 
 interface HeaderProps {
-  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile' | 'contact' | 'about' | '500', productId?: number) => void;
   cartCount?: number;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => {
+export const Header: React.FC<HeaderProps> = ({ cartCount = 0 }) => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [user, setUser] = useState<any>(() => {
@@ -49,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
       await authService.logout();
       localStorage.removeItem('token');
       setUser(null);
-      onNavigate('home');
+      navigate('/');
       setIsMenuOpen(false);
     } catch (error) {
       console.error("Lỗi đăng xuất:", error);
@@ -62,14 +63,14 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
     <header className="sticky top-0 z-50 border-b border-neutral-100 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-8 lg:gap-12">
-          <button onClick={() => onNavigate('home')} className="flex items-center gap-2 group">
+          <button onClick={() => navigate('/')} className="flex items-center gap-2 group">
             <Armchair className="h-8 w-8 text-black transition-transform group-hover:scale-110" />
             <span className="text-2xl font-bold tracking-tighter uppercase">NoiThat</span>
           </button>
           
           <nav className="hidden md:flex items-center gap-8">
             <button 
-              onClick={() => onNavigate('products')}
+              onClick={() => navigate('/products')}
               className="text-sm font-medium text-neutral-600 hover:text-black transition-colors"
             >
               Sản phẩm
@@ -96,7 +97,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
                       <button 
                         key={cat} 
                         onClick={() => {
-                          if (cat === 'Sofa') onNavigate('products');
+                          if (cat === 'Sofa') navigate('/products');
                           setIsDropdownOpen(false);
                         }}
                         className="block w-full text-left px-4 py-2 text-sm text-neutral-600 hover:bg-neutral-50 hover:text-black transition-colors"
@@ -110,13 +111,13 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
             </div>
 
             <button 
-              onClick={() => onNavigate('contact')}
+              onClick={() => navigate('/contact')}
               className="text-sm font-medium text-neutral-600 hover:text-black transition-colors"
             >
               Liên hệ
             </button>
             <button 
-              onClick={() => onNavigate('about')}
+              onClick={() => navigate('/about')}
               className="text-sm font-medium text-neutral-600 hover:text-black transition-colors"
             >
               Về chúng tôi
@@ -129,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
           
           <div className="flex items-center gap-2 sm:gap-4">
             <button 
-              onClick={() => onNavigate('cart')}
+              onClick={() => navigate('/cart')}
               className="relative p-2 hover:bg-neutral-100 rounded-full transition-colors"
             >
               <ShoppingCart className="h-6 w-6" />
@@ -143,7 +144,8 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
             <UserMenu 
               user={user} 
               loading={loading} 
-              onNavigate={onNavigate} 
+              // UserMenu refactoring will remove its onNavigate prop. We can leave it empty for now or remove it.
+
             />
 
             <button 
@@ -167,7 +169,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
           >
             <div className="px-4 py-6 space-y-4">
               <button 
-                onClick={() => { onNavigate('products'); setIsMenuOpen(false); }}
+                onClick={() => { navigate('/products'); setIsMenuOpen(false); }}
                 className="block w-full text-left text-lg font-medium py-2 border-b border-neutral-50"
               >
                 Sản phẩm
@@ -180,7 +182,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
                     <button 
                       key={cat} 
                       onClick={() => {
-                        if (cat === 'Sofa') onNavigate('products');
+                        if (cat === 'Sofa') navigate('/products');
                         setIsMenuOpen(false);
                       }}
                       className="text-left text-base text-neutral-600 py-1"
@@ -192,13 +194,13 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
               </div>
 
               <button 
-                onClick={() => { onNavigate('contact'); setIsMenuOpen(false); }}
+                onClick={() => { navigate('/contact'); setIsMenuOpen(false); }}
                 className="block w-full text-left text-lg font-medium py-2 border-b border-neutral-50"
               >
                 Liên hệ
               </button>
               <button 
-                onClick={() => { onNavigate('about'); setIsMenuOpen(false); }}
+                onClick={() => { navigate('/about'); setIsMenuOpen(false); }}
                 className="block w-full text-left text-lg font-medium py-2 border-b border-neutral-50"
               >
                 Về chúng tôi
@@ -208,7 +210,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
                 <div className="space-y-3 pt-4 border-t border-neutral-100">
                   <button 
                     className="w-full bg-black text-white py-4 font-bold uppercase flex items-center justify-center gap-2"
-                    onClick={() => { onNavigate('profile'); setIsMenuOpen(false); }}
+                    onClick={() => { navigate('/profile'); setIsMenuOpen(false); }}
                   >
                     <div className="h-5 w-5 bg-white text-black rounded-full flex items-center justify-center text-[8px] font-black">
                       {user.name?.charAt(0)}
@@ -225,7 +227,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, cartCount = 0 }) => 
               ) : (
                 <button 
                   className="mt-4 w-full border border-black py-4 font-bold uppercase flex items-center justify-center gap-2"
-                  onClick={() => { onNavigate('login'); setIsMenuOpen(false); }}
+                  onClick={() => { navigate('/login'); setIsMenuOpen(false); }}
                 >
                   <User className="h-5 w-5" /> Đăng nhập
                 </button>

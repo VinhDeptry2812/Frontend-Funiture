@@ -1,18 +1,19 @@
 import React from 'react';
 import { User, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface UserMenuProps {
   user: any;
   loading: boolean;
-  onNavigate: (view: any) => void;
 }
 
-export const UserMenu: React.FC<UserMenuProps> = ({ user, loading, onNavigate }) => {
+export const UserMenu: React.FC<UserMenuProps> = ({ user, loading }) => {
+  const navigate = useNavigate();
   return (
     <button 
       className="group flex items-center justify-center transition-all" 
       title={user ? `Xin chào, ${user.name}` : "Tài khoản"}
-      onClick={() => onNavigate('profile')}
+      onClick={() => navigate('/profile')}
     >
       <div className="p-2 hover:bg-neutral-100 rounded-full transition-colors">
         {loading ? (

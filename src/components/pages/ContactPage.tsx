@@ -2,11 +2,7 @@ import React from 'react';
 import { Mail, Phone, MapPin, Clock, Send, Globe, Share2, Camera } from 'lucide-react';
 import { motion } from 'motion/react';
 
-interface ContactPageProps {
-  onNavigate: (view: string) => void;
-}
-
-export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate }) => {
+export const ContactPage: React.FC = () => {
   return (
     <div className="bg-white">
       {/* Hero Section */}

@@ -1,12 +1,10 @@
 import React from 'react';
 import { ArrowRight, Home, Armchair } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 
-interface NotFoundPageProps {
-  onNavigate: (view: string) => void;
-}
-
-export const NotFoundPage: React.FC<NotFoundPageProps> = ({ onNavigate }) => {
+export const NotFoundPage: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center px-6 relative overflow-hidden bg-white">
       {/* Background Outline Text */}
@@ -51,7 +49,7 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({ onNavigate }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          onClick={() => onNavigate('home')}
+          onClick={() => navigate('/')}
           className="bg-black text-white px-10 py-4 rounded-full font-bold text-sm uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-xl shadow-black/10 flex items-center gap-2 group"
         >
           Trở về Trang chủ

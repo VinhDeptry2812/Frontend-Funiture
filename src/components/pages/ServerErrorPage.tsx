@@ -1,12 +1,10 @@
 import React from 'react';
 import { RefreshCcw, LifeBuoy, CloudOff } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 
-interface ServerErrorPageProps {
-  onNavigate: (view: string) => void;
-}
-
-export const ServerErrorPage: React.FC<ServerErrorPageProps> = ({ onNavigate }) => {
+export const ServerErrorPage: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center px-6 relative overflow-hidden bg-white">
       {/* Background Outline Text */}
@@ -63,7 +61,7 @@ export const ServerErrorPage: React.FC<ServerErrorPageProps> = ({ onNavigate }) 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            onClick={() => onNavigate('contact')}
+            onClick={() => navigate('/contact')}
             className="border border-neutral-200 text-neutral-900 px-10 py-4 rounded-full font-bold text-sm uppercase tracking-widest hover:bg-neutral-50 transition-all flex items-center gap-2 group"
           >
             <LifeBuoy className="h-4 w-4" />

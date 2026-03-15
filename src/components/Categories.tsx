@@ -3,11 +3,10 @@ import { ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { categories } from '../constants';
 
-interface CategoriesProps {
-  onNavigate: (view: 'home' | 'products' | 'detail' | 'cart' | 'login' | 'register' | 'forgot-password' | 'reset-password' | 'admin-login' | 'profile', productId?: number) => void;
-}
+import { useNavigate } from 'react-router-dom';
 
-export const Categories: React.FC<CategoriesProps> = ({ onNavigate }) => {
+export const Categories: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <section className="py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -17,7 +16,7 @@ export const Categories: React.FC<CategoriesProps> = ({ onNavigate }) => {
             <div className="mt-2 h-1 w-20 bg-black" />
           </div>
           <button 
-            onClick={() => onNavigate('products')}
+            onClick={() => navigate('/products')}
             className="flex items-center gap-1 text-sm font-bold uppercase tracking-wider hover:opacity-70 transition-opacity"
           >
             Xem tất cả <ChevronRight className="h-4 w-4" />
@@ -29,7 +28,7 @@ export const Categories: React.FC<CategoriesProps> = ({ onNavigate }) => {
             <motion.button 
               key={cat.name}
               onClick={() => {
-                if (cat.name === 'Sofa') onNavigate('products');
+                if (cat.name === 'Sofa') navigate('/products');
               }}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}

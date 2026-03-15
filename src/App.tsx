@@ -43,23 +43,6 @@ function AppContent() {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<{ product: any; quantity: number }[]>([]);
 
-  const handleNavigate = (v: string, id?: number) => {
-    if (v === 'home') navigate('/');
-    else if (v === 'products') navigate('/products');
-    else if (v === 'detail' && id) navigate(`/product/${id}`);
-    else if (v === 'cart') navigate('/cart');
-    else if (v === 'login') navigate('/login');
-    else if (v === 'register') navigate('/register');
-    else if (v === 'forgot-password') navigate('/forgot-password');
-    else if (v === 'reset-password') navigate('/reset-password');
-    else if (v === 'admin-login') navigate('/admin/login');
-    else if (v === 'admin-dashboard') navigate('/admin/dashboard');
-    else if (v === 'profile') navigate('/profile');
-    else if (v === 'contact') navigate('/contact');
-    else if (v === 'about') navigate('/about');
-    else if (v === '500') navigate('/500');
-  };
-
   const addToCart = (product: any, quantity: number = 1) => {
     setCartItems(prev => {
       const existing = prev.find(item => item.product.id === product.id);
@@ -71,7 +54,7 @@ function AppContent() {
         );
       }
       return [...prev, { product, quantity }];
-    });
+    }); 
   };
 
   const updateQuantity = (productId: number, delta: number) => {
@@ -119,14 +102,13 @@ function AppContent() {
     if (!product) return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
         <h2 className="text-2xl font-bold">Sản phẩm không tồn tại</h2>
-        <button onClick={() => handleNavigate('products')} className="bg-black text-white px-6 py-2">Quay lại cửa hàng</button>
+        <button onClick={() => navigate('/products')} className="bg-black text-white px-6 py-2">Quay lại cửa hàng</button>
       </div>
     );
 
     return (
       <ProductDetail 
         product={product} 
-        onNavigate={handleNavigate as any} 
         onAddToCart={(p, qty) => addToCart(p, qty)}
       />
     );
@@ -137,12 +119,12 @@ function AppContent() {
       <ScrollToTop />
       <Routes>
         {/* Pages without Header/Footer */}
-        <Route path="/cart" element={<CartPage cartItems={cartItems} onNavigate={handleNavigate as any} onUpdateQuantity={updateQuantity} onRemoveItem={removeFromCart} />} />
-        <Route path="/login" element={<LoginPage onNavigate={handleNavigate as any} />} />
-        <Route path="/register" element={<RegisterPage onNavigate={handleNavigate as any} />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage onNavigate={handleNavigate as any} />} />
-        <Route path="/reset-password" element={<ResetPasswordPage onNavigate={handleNavigate as any} />} />
-        <Route path="/admin/login" element={<AdminLoginPage onNavigate={handleNavigate as any} />} />
+        <Route path="/cart" element={<CartPage cartItems={cartItems} onUpdateQuantity={updateQuantity} onRemoveItem={removeFromCart} />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
 
         {/* Admin Dashboard Routes */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -159,28 +141,28 @@ function AppContent() {
         {/* Pages with Header/Footer */}
         <Route path="*" element={
           <>
-            <Header onNavigate={handleNavigate as any} cartCount={cartCount} />
+            <Header cartCount={cartCount} />
             <main>
               <Routes>
                 <Route path="/" element={
                   <>
                     <Hero />
-                    <Categories onNavigate={handleNavigate as any} />
-                    <FeaturedProducts onNavigate={handleNavigate as any} />
+                    <Categories />
+                    <FeaturedProducts />
                     <Features />
                     <Testimonials />
                   </>
                 } />
-                <Route path="/products" element={<ProductPage onNavigate={handleNavigate as any} />} />
+                <Route path="/products" element={<ProductPage />} />
                 <Route path="/product/:id" element={<ProductDetailWrapper />} />
-                <Route path="/profile" element={<ProfilePage onNavigate={handleNavigate as any} />} />
-                <Route path="/contact" element={<ContactPage onNavigate={handleNavigate as any} />} />
-                <Route path="/about" element={<AboutPage onNavigate={handleNavigate as any} />} />
-                <Route path="/500" element={<ServerErrorPage onNavigate={handleNavigate as any} />} />
-                <Route path="*" element={<NotFoundPage onNavigate={handleNavigate as any} />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/500" element={<ServerErrorPage />} />
+                <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </main>
-            <Footer onNavigate={handleNavigate as any} />
+            <Footer />
           </>
         } />
       </Routes>
