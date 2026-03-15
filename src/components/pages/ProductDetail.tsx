@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { productService } from '../../Service/productService';
 import { formatPrice, getImageUrl } from '../../utils';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../contexts/ToastContext'; // 👈 Thêm ToastContext
 
 interface ProductDetailProps {
   product: any;
@@ -12,10 +13,17 @@ interface ProductDetailProps {
 
 export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onAddToCart }) => {
   const navigate = useNavigate();
+  const { showToast } = useToast(); // 👈 Khởi tạo showToast
+
   const [selectedImage, setSelectedImage] = useState(getImageUrl(product.image_url));
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+
+  const handleAddToCartClick = () => {
+    onAddToCart(product, quantity);
+    showToast(`🎉 Đã thêm ${quantity} sản phẩm ${product.name} vào giỏ hàng!`, 'success'); // 👈 Hiển thị Toast
+  };
 
   useEffect(() => {
     setSelectedImage(getImageUrl(product.image_url));
@@ -57,19 +65,24 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onAddToCa
               <img 
                 src={selectedImage} 
                 alt={product.name} 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-all duration-300"
                 referrerPolicy="no-referrer"
               />
             </div>
-            {/* Gallery placeholder or actual variants */}
-            <div className="grid grid-cols-4 gap-4">
-               {/* Nếu backend có gallery thì map ở đây, hiện tại dùng variant images nếu có hoặc mặc định */}
-               <button 
-                  onClick={() => setSelectedImage(getImageUrl(product.image_url))}
-                  className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedImage === getImageUrl(product.image_url) ? 'border-black' : 'border-transparent hover:border-neutral-300'}`}
-                >
-                  <img src={getImageUrl(product.image_url)} alt="Main" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                </button>
+            {/* Gallery: Gom ảnh chính và tất cả ảnh biến thể */}
+            <div className="grid grid-cols-6 gap-3">
+               {Array.from(new Set([
+                 getImageUrl(product.image_url),
+                 ...(product.variants || []).map((v: any) => v.image_url ? getImageUrl(v.image_url) : '')
+               ])).filter(Boolean).map((imgUrl: string, index: number) => (
+                 <button 
+                    key={index}
+                    onClick={() => setSelectedImage(imgUrl)}
+                    className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedImage === imgUrl ? 'border-black shadow-sm' : 'border-neutral-100 hover:border-neutral-300'}`}
+                  >
+                    <img src={imgUrl} alt={`Gallery ${index}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  </button>
+               ))}
             </div>
           </div>
 
@@ -136,7 +149,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onAddToCa
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <button 
-                onClick={() => onAddToCart(product, quantity)}
+                onClick={handleAddToCartClick}
                 className="flex-1 bg-black text-white py-4 font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2"
               >
                 <ShoppingCart className="h-5 w-5" /> Thêm vào giỏ hàng

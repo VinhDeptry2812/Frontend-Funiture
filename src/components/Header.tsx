@@ -28,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({ cartCount = 0 }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token'); // Khóa CHỈ dành cho FE thường
       if (token) {
         setLoading(true);
         try {
@@ -37,9 +37,13 @@ export const Header: React.FC<HeaderProps> = ({ cartCount = 0 }) => {
         } catch (error) {
           console.error("Lỗi lấy thông tin người dùng:", error);
           localStorage.removeItem('token');
+          setUser(null);
         } finally {
           setLoading(false);
         }
+      } else {
+        // 🔒 Bảo vệ: Nếu KHÔNG CÓ 'token' (Khách hàng), buộc dọn rác 'user_info' cũ đọng lại
+        setUser(null);
       }
     };
     fetchUser();

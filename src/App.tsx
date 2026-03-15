@@ -28,6 +28,9 @@ import { AboutPage } from './components/pages/AboutPage';
 import { AdminLayout } from './components/admin/layout/AdminLayout';
 import { AdminDashboard } from './components/admin/pages/AdminDashboard';
 import { AdminCategories } from './components/admin/pages/AdminCategories';
+import { AdminProducts } from './components/admin/pages/AdminProducts';
+import { AdminProductCreate } from './components/admin/pages/AdminProductCreate';
+import { AdminProductEdit } from './components/admin/pages/AdminProductEdit';
 import { productService } from './Service/productService';
 import { Product } from './types';
 
@@ -37,6 +40,48 @@ const ScrollToTop = () => {
     window.scrollTo(0, 0);
   }, [pathname]);
   return null;
+};
+
+const ProductDetailWrapper: React.FC<{ onAddToCart: (product: any, quantity: number) => void }> = ({ onAddToCart }) => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) return;
+      try {
+        const res = await productService.getProductById(id);
+        setProduct(res.data);
+      } catch (error) {
+        console.error('Failed to fetch product:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+    </div>
+  );
+  
+  if (!product) return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+      <h2 className="text-2xl font-bold">Sản phẩm không tồn tại</h2>
+      <button onClick={() => navigate('/products')} className="bg-black text-white px-6 py-2">Quay lại cửa hàng</button>
+    </div>
+  );
+
+  return (
+    <ProductDetail 
+      product={product} 
+      onAddToCart={onAddToCart}
+    />
+  );
 };
 
 function AppContent() {
@@ -73,46 +118,6 @@ function AppContent() {
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  const ProductDetailWrapper = () => {
-    const { id } = useParams<{ id: string }>();
-    const [product, setProduct] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-      const fetchProduct = async () => {
-        if (!id) return;
-        try {
-          const res = await productService.getProductById(id);
-          setProduct(res.data);
-        } catch (error) {
-          console.error('Failed to fetch product:', error);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchProduct();
-    }, [id]);
-
-    if (loading) return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
-      </div>
-    );
-    
-    if (!product) return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <h2 className="text-2xl font-bold">Sản phẩm không tồn tại</h2>
-        <button onClick={() => navigate('/products')} className="bg-black text-white px-6 py-2">Quay lại cửa hàng</button>
-      </div>
-    );
-
-    return (
-      <ProductDetail 
-        product={product} 
-        onAddToCart={(p, qty) => addToCart(p, qty)}
-      />
-    );
-  };
 
   return (
     <div className="min-h-screen bg-white font-sans text-neutral-900">
@@ -132,7 +137,9 @@ function AppContent() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="orders" element={<div className="p-8 bg-white m-8 rounded-2xl shadow-sm h-64 flex items-center justify-center font-bold text-neutral-400">Orders Page (Coming soon)</div>} />
           <Route path="categories" element={<AdminCategories />} />
-          <Route path="products" element={<div className="p-8 bg-white m-8 rounded-2xl shadow-sm h-64 flex items-center justify-center font-bold text-neutral-400">Products Page (Coming soon)</div>} />
+          <Route path="products" element={<AdminProducts/>} />
+          <Route path="products/create" element={<AdminProductCreate />} />
+          <Route path="products/edit/:id" element={<AdminProductEdit />} />
           <Route path="customers" element={<div className="p-8 bg-white m-8 rounded-2xl shadow-sm h-64 flex items-center justify-center font-bold text-neutral-400">Customers Page (Coming soon)</div>} />
           <Route path="reports" element={<div className="p-8 bg-white m-8 rounded-2xl shadow-sm h-64 flex items-center justify-center font-bold text-neutral-400">Reports Page (Coming soon)</div>} />
           <Route path="settings" element={<div className="p-8 bg-white m-8 rounded-2xl shadow-sm h-64 flex items-center justify-center font-bold text-neutral-400">Settings Page (Coming soon)</div>} />
@@ -154,7 +161,7 @@ function AppContent() {
                   </>
                 } />
                 <Route path="/products" element={<ProductPage />} />
-                <Route path="/product/:id" element={<ProductDetailWrapper />} />
+                <Route path="/product/:id" element={<ProductDetailWrapper onAddToCart={addToCart} />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/about" element={<AboutPage />} />
@@ -171,6 +178,7 @@ function AppContent() {
 }
 
 import { ToastProvider } from './contexts/ToastContext';
+// End of file
 
 export default function App() {
   return (

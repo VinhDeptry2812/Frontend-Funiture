@@ -20,8 +20,8 @@ export const AdminLoginPage: React.FC = () => {
     try {
       const response = await authService.LoginAdmin({ email, password });
 
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.admin));
+      localStorage.setItem('admin_token', response.token);
+      localStorage.setItem('admin_info', JSON.stringify(response.admin));
       
       showToast('Xác thực quản trị viên thành công. Đang chuyển hướng...', 'success');
       setTimeout(() => navigate('/admin/dashboard'), 1500);

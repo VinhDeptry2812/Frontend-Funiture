@@ -9,7 +9,12 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
+    // Kiểm tra nếu API gọi đến endpoint /admin thì ưu tiên lấy admin_token
+    const isAdminApi = config.url && (config.url.includes('/admin/') || config.url.includes('/products'));
+    const token = isAdminApi 
+        ? (localStorage.getItem('admin_token') || localStorage.getItem('token')) // Fallback nếu chưa đổi hết
+        : localStorage.getItem('token');
+
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
